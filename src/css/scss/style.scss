@@ -1,0 +1,131 @@
+@import 'reset';
+@import 'variables';
+@import 'keyframe';
+
+.fade-in {
+  @include animation('fadeIn 1s ease');
+}
+
+.fade-out {
+  @include animation('fadeOut 1s ease');
+}
+
+.loader {
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  animation: spin .6s cubic-bezier(.90,.64,.68,.21) infinite;
+}
+
+.fab-window {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 400px;
+  border: 2px solid $border-color;
+  width: 600px;
+  background-color: #fff;
+
+  .active {
+    z-index: 1000;
+  }
+
+  .fade-out {
+    animation: fadeOut ease 1s;
+    -webkit-animation: fadeOut ease 1s;
+    -moz-animation: fadeOut ease 1s;
+    -o-animation: fadeOut ease 1s;
+    -ms-animation: fadeOut ease 1s;
+  }
+
+  .fab-header {
+    position: relative;
+    padding: 1rem;
+    cursor: move;
+  }
+
+  .fab-content {
+    padding: 2rem;
+    position: relative;
+  }
+
+  .reduce {
+    position: absolute;
+    right: 30px;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.3;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:before {
+      position: absolute;
+      content: ' ';
+      height: 2px;
+      width: 16px;
+      top: 7px;
+      background-color: #333;
+    }
+  }
+
+  .close {
+    position: absolute;
+    right: 2px;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.3;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:before {
+      transform: rotate(45deg);
+    }
+
+    &:after {
+      transform: rotate(-45deg);
+    }
+
+    &:before,
+    &:after {
+      position: absolute;
+      left: 5px;
+      content: ' ';
+      height: 16px;
+      width: 2px;
+      background-color: #333;
+    }
+  }
+
+  .fab-footer {
+    padding: .5rem;
+    text-align: right;
+    border-top: 1px solid $border-color;
+
+    button {
+      background: none;
+      border: 2px solid;
+      font: inherit;
+      line-height: 1;
+      margin: 0.5em;
+      padding: 1em 1em;
+      transition: .25s;
+
+      &:hover {
+        color: $btn-hover-color;
+        box-shadow: inset 6.5em 0 0 0 $btn-hover-bg-color;
+      }
+    }
+  }
+}

@@ -5,22 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fab-Modal</title>
   <link rel="stylesheet" href="src/css/style.css">
-  <script src="src/js/FabWindow.js"></script>
+  <script src="main.js" type="module"></script>
 </head>
 <body>
   <button>Toggle FabWindow</button>
-  <script>
-    document.querySelector('button').addEventListener('click', function(){
-      let fabwindow = new FabWindow({
-        bodyContent: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione quasi non 
-                      recusandae maiores? Enim quidem nemo ad cumque delectus 
-                      molestiae nam ea excepturi, qui autem, mollitia omnis saepe maiores fuga!`,
-        // footerContent : `<button>Ok</button>` 
-      }); 
-        document.querySelector('.fab-window').addEventListener('fabWindowClose', function(){ 
-          console.log('closed');
-        })
-    })
-  </script>
 </body>
 </html>

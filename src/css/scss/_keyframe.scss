@@ -1,0 +1,16 @@
+@import 'mixins';
+
+@include keyframes(fadeIn) {
+  0% { opacity: 0; }
+  90% { opacity: 1; }
+}
+
+@include keyframes(fadeOut) {
+  0% { opacity: 1; }
+  90% { opacity: 0; }
+}
+
+@include keyframes(spin) {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
