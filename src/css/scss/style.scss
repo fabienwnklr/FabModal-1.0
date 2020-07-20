@@ -11,13 +11,15 @@
 }
 
 .loader {
-  border: 5px solid #f3f3f3; /* Light grey */
-  border-top: 5px solid #3498db; /* Blue */
+  border: 3px solid #f3f3f3;
+  /* Light grey */
+  border-top: 3px solid #4e4f50;
+  /* Blue */
   border-radius: 50%;
   width: 40px;
   height: 40px;
   margin: 0 auto;
-  animation: spin .6s cubic-bezier(.90,.64,.68,.21) infinite;
+  animation: spin .6s linear 0s infinite normal;
 }
 
 .fab-window {
@@ -29,6 +31,8 @@
   border: 2px solid $border-color;
   width: 600px;
   background-color: #fff;
+  transition: margin-top 0.3s ease, height 0.3s ease;
+  border-radius: 5px;
 
   .active {
     z-index: 1000;
@@ -45,7 +49,12 @@
   .fab-header {
     position: relative;
     padding: 1rem;
-    cursor: move;
+    cursor: default;
+    background-color: $header-bgc;
+
+    &.draggable {
+      cursor: move;
+    }
   }
 
   .fab-content {
@@ -56,11 +65,12 @@
   .reduce {
     position: absolute;
     right: 30px;
-    top: 5px;
+    top: 25%;
     width: 16px;
     height: 16px;
     opacity: 0.3;
     cursor: pointer;
+    transition: all .2s ease-in;
 
     &:hover {
       opacity: 1;
@@ -78,15 +88,19 @@
 
   .close {
     position: absolute;
+    background-color: #fefefe;
+    border-radius: 50%;
     right: 2px;
-    top: 5px;
-    width: 16px;
-    height: 16px;
+    top: 6px;
+    width: 20px;
+    height: 20px;
     opacity: 0.3;
     cursor: pointer;
+    transition: all .2s ease-in;
 
     &:hover {
       opacity: 1;
+      transform: rotate(180deg);
     }
 
     &:before {
@@ -100,7 +114,7 @@
     &:before,
     &:after {
       position: absolute;
-      left: 5px;
+      left: 8px;
       content: ' ';
       height: 16px;
       width: 2px;

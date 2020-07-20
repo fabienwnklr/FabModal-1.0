@@ -217,15 +217,15 @@ table {
   animation: fadeOut 1s ease; }
 
 .loader {
-  border: 5px solid #f3f3f3;
+  border: 3px solid #f3f3f3;
   /* Light grey */
-  border-top: 5px solid #3498db;
+  border-top: 3px solid #4e4f50;
   /* Blue */
   border-radius: 50%;
   width: 40px;
   height: 40px;
   margin: 0 auto;
-  animation: spin 0.6s cubic-bezier(0.9, 0.64, 0.68, 0.21) infinite; }
+  animation: spin .6s linear 0s infinite normal; }
 
 .fab-window {
   position: absolute;
@@ -235,7 +235,9 @@ table {
   min-width: 400px;
   border: 2px solid #e6e6e6;
   width: 600px;
-  background-color: #fff; }
+  background-color: #fff;
+  transition: margin-top 0.3s ease, height 0.3s ease;
+  border-radius: 5px; }
   .fab-window .active {
     z-index: 1000; }
   .fab-window .fade-out {
@@ -247,18 +249,22 @@ table {
   .fab-window .fab-header {
     position: relative;
     padding: 1rem;
-    cursor: move; }
+    cursor: default;
+    background-color: #bebebe; }
+    .fab-window .fab-header.draggable {
+      cursor: move; }
   .fab-window .fab-content {
     padding: 2rem;
     position: relative; }
   .fab-window .reduce {
     position: absolute;
     right: 30px;
-    top: 5px;
+    top: 25%;
     width: 16px;
     height: 16px;
     opacity: 0.3;
-    cursor: pointer; }
+    cursor: pointer;
+    transition: all .2s ease-in; }
     .fab-window .reduce:hover {
       opacity: 1; }
     .fab-window .reduce:before {
@@ -270,21 +276,25 @@ table {
       background-color: #333; }
   .fab-window .close {
     position: absolute;
+    background-color: #fefefe;
+    border-radius: 50%;
     right: 2px;
-    top: 5px;
-    width: 16px;
-    height: 16px;
+    top: 6px;
+    width: 20px;
+    height: 20px;
     opacity: 0.3;
-    cursor: pointer; }
+    cursor: pointer;
+    transition: all .2s ease-in; }
     .fab-window .close:hover {
-      opacity: 1; }
+      opacity: 1;
+      transform: rotate(180deg); }
     .fab-window .close:before {
       transform: rotate(45deg); }
     .fab-window .close:after {
       transform: rotate(-45deg); }
     .fab-window .close:before, .fab-window .close:after {
       position: absolute;
-      left: 5px;
+      left: 8px;
       content: ' ';
       height: 16px;
       width: 2px;
@@ -303,6 +313,6 @@ table {
       transition: .25s; }
       .fab-window .fab-footer button:hover {
         color: #f5f5f8;
-        box-shadow: inset 6.5em 0 0 0 #4958e7; }
+        box-shadow: inset 6.5em 0 0 0 #a5a6b4; }
 
 /*# sourceMappingURL=style.css.map */
