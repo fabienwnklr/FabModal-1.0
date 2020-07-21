@@ -1,0 +1,165 @@
+@import 'reset';
+@import 'variables';
+@import 'keyframe';
+
+.fade-in {
+  @include animation('fadeIn 1s ease');
+}
+
+.fade-out {
+  @include animation('fadeOut 1s ease');
+}
+
+.coming-in {
+  @include animation('comingIn .5s ease');
+}
+.coming-out {
+  @include animation('comingOut .8s cubic-bezier(.16,.81,.32,1)')
+}
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4e4f50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin .6s linear 0s infinite normal;
+}
+
+.fab-window {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 900px;
+  height: 645px;
+  margin: auto;
+  border-radius: 5px;
+  background: #FFF;
+  box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+  transition: margin-top 0.3s ease, height 0.3s ease;
+  transform: translateZ(0);
+  box-sizing: border-box;
+
+  &.maximized {
+    width: 100%;
+    height: 100%;
+  }
+
+  .active {
+    z-index: 1000;
+  }
+
+  .fab-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    padding: 1rem;
+    cursor: default;
+    border-radius: 5px 5px 0 0;
+    background-color: $header-bgc;
+
+    &.draggable {
+      cursor: move;
+    }
+
+    .fab-icons {
+      display: flex;
+
+      button {
+        outline: none;
+        background: transparent;
+        border: transparent;
+
+        &:nth-child(1n) {
+          margin-right: 1rem;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+
+      .reduce {
+        background-image: url(../icon/minus.svg);
+        width: 16px;
+        height: 16px;
+        opacity: 0.3;
+        cursor: pointer;
+        transition: opacity .2s ease-in;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      .maximize {
+        background-image: url(../icon/expand.svg);
+        width: 16px;
+        height: 16px;
+        opacity: 0.3;
+        cursor: pointer;
+        transition: opacity .2s ease-in;
+        margin-right: .5rem;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      .close {
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        opacity: .3;
+        transition: transform .2s ease-in, opacity .2s ease-in;
+        text-indent: -9999px;
+        border: none;
+        background: url(../icon/close.svg) no-repeat 0 0;
+        opacity: 0.3;
+
+        &:hover {
+          opacity: 1;
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  .fab-content {
+    width: 100%;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem;
+  }
+
+  .fab-footer {
+    padding: .5rem;
+    text-align: right;
+    border-top: 1px solid $border-color;
+
+    button {
+      background: none;
+      border: 2px solid;
+      font: inherit;
+      line-height: 1;
+      margin: 0.5em;
+      padding: 1em 1em;
+      transition: .25s;
+
+      &:hover {
+        color: $btn-hover-color;
+        box-shadow: inset 6.5em 0 0 0 $btn-hover-bg-color;
+      }
+    }
+  }
+}
