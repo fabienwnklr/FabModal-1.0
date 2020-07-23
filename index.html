@@ -8,32 +8,20 @@
   <script src="src/js/FabWindow.js"></script>
 </head>
 <body>
+
   <script>
-  var content = ` <p>You have several possibilities to use the easy Modal, with options, and also data-attributes. Click below for see some examples.</p>
-        
-        <h4><span>Progress</span></h4>
-        <button class="btn btn-progress-start">Start Progress</button>
-        <button class="btn btn-progress-pause">Pause Progress</button>
-        <button class="btn btn-progress-resume">Resume Progress</button>
-        <button class="btn btn-progress-reset">Reset Progress</button>
-
-        <h4><span>Ajax/Fetch</span></h4>
-        <button class="btn btn-ajax">Load Ajax</button>
-        <button class="btn btn-fetch">Load Fetch</button>
-
-        <h4><span>Group</span></h4>
-        <button class="btn" data-izimodal-prev="">Prev Modal</button>
-        <button class="btn" data-izimodal-next="">Next Modal</button>
-
-        <h4><span>Data-Attributes</span></h4>
-        <button class="btn" data-izimodal-close="">Close</button>
-        <button class="btn" data-izimodal-fullscreen="">Fullscreen</button>
-        <button data-izimodal-open="#modal-custom" data-izimodal-transitionin="fadeInDown" data-izimodal-transitionout="fadeOutDown">Open a specific Modal</button>        
-
-        <h4><span>Another Modal</span></h4>
-        <button class="btn" data-izimodal-open="#modal-custom" data-izimodal-zindex="20000" data-izimodal-preventclose="">Another Modal</button>`;
-  window.FabWindow = new FabWindow({
-    bodyContent: content
-  });</script>
+  var content = `<p></p>`;
+  // window.FabWindow = new FabWindow({
+  //   bodyContent: content
+  // });
+  document.addEventListener('DOMContentLoaded', function(e) {
+    e.preventDefault();
+    var myDialog = new FabWindow({
+      bodyContent: content,
+      resizable: true,
+      draggable: true
+    })
+  })
+  </script>
 </body>
 </html>

@@ -13,6 +13,7 @@
 .coming-in {
   @include animation('comingIn .5s ease');
 }
+
 .coming-out {
   @include animation('comingOut .8s cubic-bezier(.16,.81,.32,1)')
 }
@@ -29,6 +30,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   animation: spin .6s linear 0s infinite normal;
+
 }
 
 .fab-window {
@@ -37,19 +39,40 @@
   bottom: 0;
   left: 0;
   right: 0;
+  min-width: 300px;
+  min-height: 400px;
   width: 900px;
   height: 645px;
   margin: auto;
   border-radius: 5px;
   background: #FFF;
   box-shadow: 0 0 8px rgba(0, 0, 0, .3);
-  transition: margin-top 0.3s ease, height 0.3s ease;
   transform: translateZ(0);
   box-sizing: border-box;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+  &.transition {
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+  .resizer {
+    width: 10px;
+    height: 10px;
+    background: blue;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    z-index: 9999;
+  }
 
   &.maximized {
     width: 100%;
     height: 100%;
+
+    .fab-header.fab-icons.maximize {
+      background: url(../icon/minus.svg);
+
+    }
   }
 
   .active {
@@ -136,9 +159,7 @@
   }
 
   .fab-content {
-    width: 100%;
     position: relative;
-    -webkit-overflow-scrolling: touch;
     padding: 1rem;
   }
 

@@ -1,6 +1,16 @@
-var FabWindow = null;
-var $window = null;
-var $body = null;
+var FabWindow = null,
+  $window = null,
+  $body = null,
+  $header = null,
+  $title = null,
+  $icons = null,
+  $maximize = null,
+  $reduce = null,
+  $close = null,
+  $body = null,
+  $resizer = null,
+  $loader = null,
+  $footer = null;
 (function () {
   'use strict';
   /**
@@ -8,8 +18,10 @@ var $body = null;
    * @param {Object} options 
    */
   FabWindow = function (options) {
+    // Selectors
     $window = window;
     $body = document.querySelector('body');
+    // Options
     options = options || {};
     var defaults = {
       id: 'fab-window-' + Math.round(new Date().getTime() + (Math.random() * 100)),
@@ -17,31 +29,26 @@ var $body = null;
         modal: '.fab-window',
         header: '.fab-header',
         title: '.fab-title',
-        body: '.fab-content',
-        footer: '.fab-footer',
+        icons: '.fab-icons',
         maximize: '.maximize',
         reduce: '.reduce',
         close: '.close',
+        body: '.fab-content',
+        resizer: '.resizer',
         loader: '.loader',
-      },
-      elements: {
-        header: null,
-        reduce: null,
-        close: null,
-        loader: null,
-        body: null,
-        footer: null
+        footer: '.fab-footer',
       },
       effects: {
-        in: 'coming-in',
-        out: 'coming-out'
+        in: 'coming-in', // Also fade-in
+        out: 'coming-out' // Also fade-out
       },
       draggable: false,
+      resizable: false,
       maximized: false,
       minimized: false,
       maximizable: true,
-      minimizable: true,
-      title: 'Welcome to FabWindow',
+      minimizable: false,
+      title: '',
       bodyContent: '<div class="loader"></div>',
       footerContent: '',
       loader: '<div class="loader"></div>'
@@ -52,14 +59,19 @@ var $body = null;
   };
 
   /**
+   * @function initialize This function init 
+   * 
+   * @param {Object} options 
    */
   FabWindow.prototype.initialize = function (options) {
     this.$el = this.createWindow();
 
     this.$header = this.$el.querySelector(options.selectors.header);
     this.$title = this.$el.querySelector(options.selectors.title);
+    this.$icons = this.$el.querySelector(options.selectors.icons);
     this.$reduce = this.$el.querySelector(options.selectors.reduce);
     this.$close = this.$el.querySelector(options.selectors.close);
+    this.$resizer = this.$el.querySelector(options.selectors.resizer);
     this.$body = this.$el.querySelector(options.selectors.body);
     this.$footer = this.$el.querySelector(options.selectors.footer);
 
@@ -70,10 +82,19 @@ var $body = null;
     this.initHandlers();
   };
 
+  /**
+   * @function createWindow This function (like this name saying..) literally construct the html window
+   */
   FabWindow.prototype.createWindow = function () {
     var fabWindow = document.createElement('div');
-    fabWindow.className = `fab-window ${this.options.effects.in}`;
+    fabWindow.className = `fab-window ${this.options.effects.in} transition`;
     fabWindow.id = this.options.id;
+
+    if (this.options.resizable) {
+      var fabWindowResizer = document.createElement('span');
+      fabWindowResizer.className = 'resizer';
+      fabWindow.appendChild(fabWindowResizer);
+    }
 
     var fabWindowHeader = document.createElement('div');
     fabWindowHeader.className = 'fab-header';
@@ -85,8 +106,8 @@ var $body = null;
     fabWindowHeader.appendChild(fabWindowTitle);
 
     var fabWindowIcons = document.createElement('div');
-      fabWindowIcons.className = 'fab-icons';
-      fabWindowHeader.appendChild(fabWindowIcons)
+    fabWindowIcons.className = 'fab-icons';
+    fabWindowHeader.appendChild(fabWindowIcons)
 
     if (this.options.minimizable) {
       var fabReduceWindow = document.createElement('button');
@@ -143,14 +164,49 @@ var $body = null;
       that.closeWindow();
     };
 
+    if (this.options.resizable) {
+      this.$resizer.addEventListener('mousedown', initResize);
+
+      function initResize(e) {
+        window.addEventListener('mousemove', Resize, false);
+        window.addEventListener('mouseup', stopResize, false);
+      }
+      function Resize(e) {
+        that.$el.classList.remove('transition');
+
+        if (e.clientX >= window.outerWidth) return;
+        if (e.clientY >= window.outerHeight) return;
+        that.$el.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
+        that.$el.style.height = (e.clientY - that.$el.offsetTop) + 'px';
+      }
+      function stopResize(e) {
+        that.$el.classList.add('transition');
+        window.removeEventListener('mousemove', Resize, false);
+        window.removeEventListener('mouseup', stopResize, false);
+      }
+    };
+
     if (this.options.draggable) {
       this.initDragWindow();
     };
   };
 
   FabWindow.prototype.toggleFullScreen = function () {
+    if (!this.window_infos) {
+      this.window_infos = {
+        width: this.$el.style.width,
+        height: this.$el.style.height
+      };
+    }
+    this.$el.style.width = '';
+    this.$el.style.height = '';
     if (this.$el.classList.contains('maximized')) {
       this.$el.classList.remove('maximized');
+      if (this.window_infos) {
+        this.$el.style.width = this.window_infos.width;
+        this.$el.style.height = this.window_infos.height;
+        delete this.window_infos;
+      }
     } else {
       this.$el.classList.add('maximized');
     }
@@ -207,33 +263,44 @@ var $body = null;
     }
   };
 
+  /**
+   * 
+   * @param {string} target Target (cf: initialize function variable starting with '$')
+   * @param {string} content Content to append
+   */
   FabWindow.prototype.setContent = function (target, content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       if ((!target && target === '' && target === null)) {
         this.$body.innerHTML = content;
       } else {
-        target = '$'+target;
+        target = '$' + target;
         this[target].innerHTML = content;
       }
     }
   };
 
   FabWindow.prototype.closeWindow = function () {
-    var _this = this;
+    var that = this;
 
     this.$el.classList.add(this.options.effects.out)
     // On remove la window une fois l'effet fade-out terminé
     window.setTimeout(function () {
-      _this.$el.dispatchEvent(new CustomEvent("fabWindowClose"));
-      _this.$el.remove();
+      that.$el.dispatchEvent(new CustomEvent("fabWindowClose"));
+      that.$el.remove();
     }, 800);
   };
 
+  /**
+   * @function startLoader For init loader and clear all content in window
+   */
   FabWindow.prototype.startLoader = function () {
     this.setContent('body', this.options.loader)
     this.$loader = this.$el.querySelector(this.options.selectors.loader);
   };
 
+  /**
+   * @function stopLoader for remove loader init with startLoader
+   */
   FabWindow.prototype.stopLoader = function () {
     this.$loader.remove();
   }
