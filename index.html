@@ -11,17 +11,16 @@
 
   <script>
   var content = `<p></p>`;
-  // window.FabWindow = new FabWindow({
-  //   bodyContent: content
-  // });
   document.addEventListener('DOMContentLoaded', function(e) {
     e.preventDefault();
-    var myDialog = new FabWindow({
+    window.myDialog = new FabWindow({
+      title: 'Awesome window!',
       bodyContent: content,
-      // resizable: true,
-      draggable: true
+      width: '600px',
+      draggable: true,
+      resizable: true,
     })
-    myDialog.$el.addEventListener('fullScreen', function(e) {
+    window.myDialog.$el.addEventListener('fullScreen', function(e) {
       e.preventDefault();
       console.log('FabWindow fullScreen !')
     })

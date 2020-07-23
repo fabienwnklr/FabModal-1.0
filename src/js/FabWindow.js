@@ -1,16 +1,6 @@
 var FabWindow = null,
   $window = null,
-  $body = null,
-  $header = null,
-  $title = null,
-  $icons = null,
-  $maximize = null,
-  $reduce = null,
-  $close = null,
-  $body = null,
-  $resizer = null,
-  $loader = null,
-  $footer = null;
+  $body = null;
 (function () {
   'use strict';
   /**
@@ -42,6 +32,8 @@ var FabWindow = null,
         in: 'coming-in', // Also fade-in
         out: 'coming-out' // Also fade-out
       },
+      width: 'auto',
+      height: 'auto',
       draggable: false,
       resizable: false,
       maximized: false,
@@ -53,6 +45,7 @@ var FabWindow = null,
       footerContent: '',
       loader: '<div class="loader"></div>'
     };
+
     this.options = Object.assign(defaults, options);
     this.initialize(this.options);
     return this;
@@ -80,6 +73,7 @@ var FabWindow = null,
 
     $body.appendChild(this.$el);
     this.initHandlers();
+    this.centerWindow();
   };
 
   /**
@@ -87,8 +81,10 @@ var FabWindow = null,
    */
   FabWindow.prototype.createWindow = function () {
     var fabWindow = document.createElement('div');
-    fabWindow.className = `fab-window ${this.options.effects.in} transition`;
+    fabWindow.className = 'fab-window ' + this.options.effects.in + ' transition';
     fabWindow.id = this.options.id;
+    fabWindow.style.width = this.options.width;
+    fabWindow.style.height = this.options.height;
 
     if (this.options.resizable) {
       var fabWindowResizer = document.createElement('span');
@@ -194,14 +190,13 @@ var FabWindow = null,
   FabWindow.prototype.toggleFullScreen = function () {
     if (!this.window_infos) {
       this.window_infos = {
-        width: this.$el.clientWidth,
-        height: this.$el.clientHeight,
+        width: this.$el.clientWidth + 'px',
+        height: this.$el.clientHeight + 'px',
         top: this.$el.style.top,
         left: this.$el.style.left,
       };
     }
-    this.$el.style.width = '';
-    this.$el.style.height = '';
+
     if (this.$el.classList.contains('fullScreen')) {
       this.$el.classList.remove('fullScreen');
       if (this.window_infos) {
@@ -209,13 +204,21 @@ var FabWindow = null,
         this.$el.style.height = this.window_infos.height;
         this.$el.style.top = this.window_infos.top;
         this.$el.style.left = this.window_infos.left;
+
+        if (this.options.draggable) {
+          this.initDragWindow();
+        }
+
         delete this.window_infos;
       }
     } else {
       this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
-      this.$el.style.top = '';
-      this.$el.style.left = '';
+      this.$el.style.width = '';
+      this.$el.style.height = '';
+      this.$el.style.top = 0;
+      this.$el.style.left = 0;
+      this.removeDragging();
     }
   };
 
@@ -245,10 +248,8 @@ var FabWindow = null,
       el.onmousedown = dragMouseDown;
     };
 
-
-
     var elementDrag = function (e) {
-      that.options.isMoving = true
+      el.classList.remove('transition');
       e = e || window.event;
       e.preventDefault();
       // calculate the new cursor position:
@@ -262,14 +263,21 @@ var FabWindow = null,
     }
 
     var closeDragElement = function () {
-      console.log(`Window stop to moving dude ... :( !`)
-      that.options.isMoving = false;
+      console.log('Stop moving')
+      el.classList.add('transition');
       // stop moving when mouse button is released:
       document.onmouseup = null;
       document.onmousemove = null;
     }
   };
 
+  FabWindow.prototype.removeDragging = function () {
+    this.$header.onmousedown = null;
+    this.$header.classList.remove('draggable');
+
+    document.onmouseup = null;
+    document.onmousemove = null;
+  };
   /**
    * 
    * @param {string} target Target (cf: initialize function variable starting with '$')
@@ -310,6 +318,14 @@ var FabWindow = null,
    */
   FabWindow.prototype.stopLoader = function () {
     this.$loader.remove();
+  }
+
+  FabWindow.prototype.centerWindow = function () {
+    var top = ($window.outerHeight - this.$el.clientHeight) / 2 + 'px';
+    var left = ($window.outerWidth - this.$el.clientWidth) / 2 + 'px';
+
+    this.$el.style.top = top;
+    this.$el.style.left = left
   }
 
 })()

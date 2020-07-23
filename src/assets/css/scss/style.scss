@@ -35,15 +35,8 @@
 
 .fab-window {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   min-width: 300px;
   min-height: 400px;
-  width: 900px;
-  height: 645px;
-  margin: auto;
   border-radius: 5px;
   background: #FFF;
   box-shadow: 0 0 8px rgba(0, 0, 0, .3);
@@ -52,7 +45,7 @@
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
   &.transition {
-    transition: width 0.3s ease, height 0.3s ease;
+    transition: all .2s ease;
   }
   .resizer {
     width: 10px;
