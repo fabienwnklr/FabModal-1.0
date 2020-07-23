@@ -32,13 +32,13 @@ var FabWindow = null,
         in: 'coming-in', // Also fade-in
         out: 'coming-out' // Also fade-out
       },
-      width: 'auto',
+      width: '600px',
       height: 'auto',
       draggable: false,
       resizable: false,
       maximized: false,
       minimized: false,
-      maximizable: true,
+      maximizable: false,
       minimizable: false,
       title: '',
       bodyContent: '<div class="loader"></div>',
@@ -68,10 +68,11 @@ var FabWindow = null,
     this.$body = this.$el.querySelector(options.selectors.body);
     this.$footer = this.$el.querySelector(options.selectors.footer);
 
+    $body.appendChild(this.$el);
+
     this.setContent('body', options.bodyContent);
     this.setContent('footer', options.footerContent);
 
-    $body.appendChild(this.$el);
     this.initHandlers();
     this.centerWindow();
   };
@@ -123,13 +124,14 @@ var FabWindow = null,
 
     var fabWindowBody = document.createElement('div');
     fabWindowBody.className = 'fab-content';
+    fabWindowBody.style.width = this.options.width;
+    fabWindowBody.style.height = this.options.height;
     fabWindow.appendChild(fabWindowBody);
 
-    if (this.options.footerContent !== '' && this.options.footerContent !== null && this.footerContent !== 'undefined') {
-      var fabWindowFooter = document.createElement('div');
-      fabWindowFooter.className = 'fab-footer';
-      fabWindow.appendChild(fabWindowFooter);
-    }
+    var fabWindowFooter = document.createElement('div');
+    fabWindowFooter.className = 'fab-footer';
+    fabWindow.appendChild(fabWindowFooter);
+
 
     // On retire la class après l'affichage de la window pour plus de propreté
     var that = this;
@@ -143,14 +145,15 @@ var FabWindow = null,
   FabWindow.prototype.initHandlers = function () {
     var that = this;
 
-    this.$el.querySelector(this.options.selectors.maximize).onclick = null
-    this.$el.querySelector(this.options.selectors.maximize).onclick = function (event) {
-      event.stopPropagation();
-      event.preventDefault();
+    if (this.options.maximizable) {
+      this.$el.querySelector(this.options.selectors.maximize).onclick = null
+      this.$el.querySelector(this.options.selectors.maximize).onclick = function (event) {
+        event.stopPropagation();
+        event.preventDefault();
 
-      that.toggleFullScreen();
-    };
-
+        that.toggleFullScreen();
+      };
+    }
 
     this.$el.querySelector(this.options.selectors.close).onclick = null;
     this.$el.querySelector(this.options.selectors.close).onclick = function (event) {
@@ -174,6 +177,8 @@ var FabWindow = null,
         if (e.clientY >= window.outerHeight) return;
         that.$el.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
         that.$el.style.height = (e.clientY - that.$el.offsetTop) + 'px';
+        that.$body.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
+        that.$body.style.height = (e.clientY - that.$el.offsetTop - that.$header.clientHeight) + 'px';
       }
       function stopResize(e) {
         that.$el.classList.add('transition');
@@ -194,16 +199,20 @@ var FabWindow = null,
         height: this.$el.clientHeight + 'px',
         top: this.$el.style.top,
         left: this.$el.style.left,
+        bodyHeight: this.$body.clientHeight + 'px'
       };
     }
 
-    if (this.$el.classList.contains('fullScreen')) {
+    if (this.options.maximized) {
+      this.options.maximized = false;
       this.$el.classList.remove('fullScreen');
       if (this.window_infos) {
         this.$el.style.width = this.window_infos.width;
         this.$el.style.height = this.window_infos.height;
         this.$el.style.top = this.window_infos.top;
         this.$el.style.left = this.window_infos.left;
+
+        this.$body.style.height = this.window_infos.bodyHeight;
 
         if (this.options.draggable) {
           this.initDragWindow();
@@ -212,12 +221,16 @@ var FabWindow = null,
         delete this.window_infos;
       }
     } else {
+      this.options.maximized = true
       this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
       this.$el.style.width = '';
       this.$el.style.height = '';
       this.$el.style.top = 0;
       this.$el.style.left = 0;
+
+      this.$body.style.width = '';
+      this.$body.style.height = $window.innerHeight - this.$header.clientHeight + 'px';
       this.removeDragging();
     }
   };
@@ -291,6 +304,10 @@ var FabWindow = null,
         target = '$' + target;
         this[target].innerHTML = content;
       }
+      if (this.options.height === 'auto') {
+        this.options.height = this.$el.clientHeight;
+      }
+      this.$body.style.height = parseInt(this.options.height) - this.$header.clientHeight + 'px';
     }
   };
 
@@ -321,8 +338,8 @@ var FabWindow = null,
   }
 
   FabWindow.prototype.centerWindow = function () {
-    var top = ($window.outerHeight - this.$el.clientHeight) / 2 + 'px';
-    var left = ($window.outerWidth - this.$el.clientWidth) / 2 + 'px';
+    var top = ($window.innerHeight - this.$el.clientHeight) / 2 + 'px';
+    var left = ($window.innerWidth - this.$el.clientWidth) / 2 + 'px';
 
     this.$el.style.top = top;
     this.$el.style.left = left

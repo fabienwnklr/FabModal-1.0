@@ -1,31 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fab-Modal</title>
+
   <link rel="stylesheet" href="src/assets/css/style.css">
   <script src="src/js/FabWindow.js"></script>
 </head>
+
 <body>
 
+  <header>
+    <nav>
+      <ul>
+        <li>
+          <a href="#doc">Documentation</a>
+          </li>
+        <li><a href=""></a><span class="icon-github"></span></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1>
+      <span>VanillaJS </span>
+      FabWindow
+      <span> v.1.0.0</span>
+    </h1>
+
+    <div class="examples">
+      <button>Default</button>
+      <button>Draggable</button>
+      <button>Resizable</button>
+      <button>Complete</button>
+    </div>
+    <section>
+      <article>
+        <h2></h2>
+      </article>
+      <article>
+        <h2></h2>
+      </article>
+      <article>
+        <h2></h2>
+      </article>
+    </section>
+  </main>
+
   <script>
-  var content = `<p></p>`;
-  document.addEventListener('DOMContentLoaded', function(e) {
-    e.preventDefault();
-    window.myDialog = new FabWindow({
-      title: 'Awesome window!',
-      bodyContent: content,
-      width: '600px',
-      draggable: true,
-      resizable: true,
-    })
-    window.myDialog.$el.addEventListener('fullScreen', function(e) {
+    var content = `<p>
+    Hello, FabWindow est un plugin en VanillaJS qui a pour objectif de pouvoir soit ouvrir de simple boite modal comme celle ci, 
+    soit des boite modal un peut plus personnalisé. 
+    </p>
+    <p>C'est aujourd'hui une version alpha</p>
+    <p class="title">
+      Voici plusieurs exemples :
+    </p>
+    <ul>
+      <li>
+        <button class="fab-button draggable">Draggable window</button>
+      </li>
+      <li>
+        <button class="fab-button resizable">Resizable window</button>
+      </li>
+      <li>
+        <button class="fab-button draggable-resizable">Draggable AND resizable window</button>
+      </li>
+      <li> 
+        <button class="fab-button footer">Window with footer</button>
+      </li>
+      <li>
+        <button class="fab-button full">Toutes les options</button>
+      </li>
+    </ul>
+    <div class="social">
+      <a href="https://github.com/fabienwnklr/FabWindow" target="_blank" title="Github/FabWindow">Dépot github</a>
+    <div>
+    `;
+    // Default window
+    document.querySelector('.default').addEventListener('click', function (e) {
       e.preventDefault();
-      console.log('FabWindow fullScreen !')
+      window.myDialog = new FabWindow({
+        title: 'FabWindow',
+        bodyContent: content,
+        maximizable: true
+      })
+      // draggable
+      document.querySelector('.draggable').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var draggableWindow = new FabWindow({
+          title: 'Draggable window',
+          bodyContent: 'Tu peux me déplacer !',
+          draggable: true,
+        })
+      })
+
+      // Resizable
+      document.querySelector('.resizable').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var resizableWindow = new FabWindow({
+          title: 'Resizable window',
+          bodyContent: 'Tu peux modifier ma taille !',
+          resizable: true,
+        })
+      })
+
+      // Drag and resize
+      document.querySelector('.draggable-resizable').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var draggableResizableWindow = new FabWindow({
+          title: 'Draggable and resizable window',
+          bodyContent: 'Tu peux modifier ma taille ET me déplacer ! Cool non ?',
+          resizable: true,
+          draggable: true
+        })
+      })
+
+      // Footer
+      document.querySelector('.footer').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var footerWindow = new FabWindow({
+          title: 'Footer window',
+          bodyContent: 'Mon contenu',
+          footerContent: '<button class="fab-button">Mon bouton</button>'
+        })
+      })
+
+      // full options 
+      document.querySelector('.full').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var fullWindow = new FabWindow({
+          title: 'Footer window',
+          bodyContent: 'Mon contenu',
+          footerContent: '<button class="fab-button">Mon bouton</button>',
+          draggable: true,
+          resizable: true,
+          maximizable: true,
+        })
+      })
     })
-  })
-  
   </script>
 </body>
+
 </html>
