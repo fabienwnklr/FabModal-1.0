@@ -18,10 +18,15 @@
     e.preventDefault();
     var myDialog = new FabWindow({
       bodyContent: content,
-      resizable: true,
+      // resizable: true,
       draggable: true
     })
+    myDialog.$el.addEventListener('fullScreen', function(e) {
+      e.preventDefault();
+      console.log('FabWindow fullScreen !')
+    })
   })
+  
   </script>
 </body>
 </html>

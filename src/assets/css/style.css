@@ -341,10 +341,13 @@ table {
     bottom: 0;
     cursor: se-resize;
     z-index: 9999; }
-  .fab-window.maximized {
+  .fab-window.fullScreen {
     width: 100%;
-    height: 100%; }
-    .fab-window.maximized .fab-header.fab-icons.maximize {
+    height: 100%;
+    border-radius: 0; }
+    .fab-window.fullScreen .fab-header {
+      border-radius: 0; }
+    .fab-window.fullScreen .fab-header.fab-icons.maximize {
       background: url(../icon/minus.svg); }
   .fab-window .active {
     z-index: 1000; }

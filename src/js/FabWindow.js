@@ -194,21 +194,28 @@ var FabWindow = null,
   FabWindow.prototype.toggleFullScreen = function () {
     if (!this.window_infos) {
       this.window_infos = {
-        width: this.$el.style.width,
-        height: this.$el.style.height
+        width: this.$el.clientWidth,
+        height: this.$el.clientHeight,
+        top: this.$el.style.top,
+        left: this.$el.style.left,
       };
     }
     this.$el.style.width = '';
     this.$el.style.height = '';
-    if (this.$el.classList.contains('maximized')) {
-      this.$el.classList.remove('maximized');
+    if (this.$el.classList.contains('fullScreen')) {
+      this.$el.classList.remove('fullScreen');
       if (this.window_infos) {
         this.$el.style.width = this.window_infos.width;
         this.$el.style.height = this.window_infos.height;
+        this.$el.style.top = this.window_infos.top;
+        this.$el.style.left = this.window_infos.left;
         delete this.window_infos;
       }
     } else {
-      this.$el.classList.add('maximized');
+      this.$el.dispatchEvent(new CustomEvent("fullScreen"));
+      this.$el.classList.add('fullScreen');
+      this.$el.style.top = '';
+      this.$el.style.left = '';
     }
   };
 
