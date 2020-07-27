@@ -32,7 +32,7 @@ var FabWindow = null,
         in: 'coming-in', // Also fade-in
         out: 'coming-out' // Also fade-out
       },
-      width: '600px',
+      width: '800px',
       height: 'auto',
       draggable: false,
       resizable: false,

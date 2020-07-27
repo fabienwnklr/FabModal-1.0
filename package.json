@@ -1,0 +1,27 @@
+{
+  "name": "fab-window",
+  "version": "1.0.0",
+  "description": "FabWindow it's a light plugin easy to use, for create simply and modern modal dialog, or multiple dialog with an window manager",
+  "main": "src/FabWindow.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabienwnklr/FabWindow.git"
+  },
+  "keywords": [
+    "dialog",
+    "modal",
+    "window",
+    "modern",
+    "light",
+    "native"
+  ],
+  "author": "Fabien Winkler <fabien.winkler@outlook.fr>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabienwnklr/FabWindow/issues"
+  },
+  "homepage": "https://github.com/fabienwnklr/FabWindow#readme"
+}
