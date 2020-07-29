@@ -16,6 +16,7 @@ var FabWindow = null,
     var defaults = {
       id: 'fab-window-' + Math.round(new Date().getTime() + (Math.random() * 100)),
       selectors: {
+        overlay: '.fab-overlay',
         modal: '.fab-window',
         header: '.fab-header',
         title: '.fab-title',
@@ -26,7 +27,6 @@ var FabWindow = null,
         body: '.fab-content',
         resizer: '.resizer',
         loader: '.loader',
-        footer: '.fab-footer',
       },
       effects: {
         in: 'coming-in', // Also fade-in
@@ -36,17 +36,18 @@ var FabWindow = null,
       height: 'auto',
       draggable: false,
       resizable: false,
-      maximized: false,
-      minimized: false,
       maximizable: false,
       minimizable: false,
       title: '',
       bodyContent: '<div class="loader"></div>',
-      footerContent: '',
-      loader: '<div class="loader"></div>'
-    };
+      loader: '<div class="loader"></div>',
 
-    this.options = Object.assign(defaults, options);
+      // function
+      onResize: function (fabWindow) { }
+    };
+    this.isFullScreen = false,
+      this.isMinimized = false,
+      this.options = Object.assign(defaults, options);
     this.initialize(this.options);
     return this;
   };
@@ -57,24 +58,30 @@ var FabWindow = null,
    * @param {Object} options 
    */
   FabWindow.prototype.initialize = function (options) {
+    var that = this;
     this.$el = this.createWindow();
 
+    this.$overlay = $body.querySelector(options.selectors.overlay);
     this.$header = this.$el.querySelector(options.selectors.header);
     this.$title = this.$el.querySelector(options.selectors.title);
     this.$icons = this.$el.querySelector(options.selectors.icons);
     this.$reduce = this.$el.querySelector(options.selectors.reduce);
+    this.$maximize = this.$el.querySelector(options.selectors.maximize)
     this.$close = this.$el.querySelector(options.selectors.close);
     this.$resizer = this.$el.querySelector(options.selectors.resizer);
     this.$body = this.$el.querySelector(options.selectors.body);
-    this.$footer = this.$el.querySelector(options.selectors.footer);
 
     $body.appendChild(this.$el);
 
     this.setContent('body', options.bodyContent);
-    this.setContent('footer', options.footerContent);
 
     this.initHandlers();
-    this.centerWindow();
+
+    
+    (function updateTimer() {
+      that.recalcLayout();
+      that.timer = setTimeout(updateTimer, 300);
+    })();
   };
 
   /**
@@ -84,8 +91,8 @@ var FabWindow = null,
     var fabWindow = document.createElement('div');
     fabWindow.className = 'fab-window ' + this.options.effects.in + ' transition';
     fabWindow.id = this.options.id;
-    fabWindow.style.width = this.options.width;
-    fabWindow.style.height = this.options.height;
+    fabWindow.style.maxWidth = this.options.width;
+    fabWindow.style.maxHeight = this.options.height;
 
     if (this.options.resizable) {
       var fabWindowResizer = document.createElement('span');
@@ -124,13 +131,14 @@ var FabWindow = null,
 
     var fabWindowBody = document.createElement('div');
     fabWindowBody.className = 'fab-content';
-    fabWindowBody.style.width = this.options.width;
-    fabWindowBody.style.height = this.options.height;
+    fabWindowBody.style.maxWidth = this.options.width;
+    fabWindowBody.style.maxHeight = this.options.height;
     fabWindow.appendChild(fabWindowBody);
 
-    var fabWindowFooter = document.createElement('div');
-    fabWindowFooter.className = 'fab-footer';
-    fabWindow.appendChild(fabWindowFooter);
+    var fabWindowOverlay = document.createElement('div');
+    fabWindowOverlay.className = 'fab-overlay fade-in';
+
+    $body.appendChild(fabWindowOverlay);
 
 
     // On retire la class après l'affichage de la window pour plus de propreté
@@ -146,8 +154,8 @@ var FabWindow = null,
     var that = this;
 
     if (this.options.maximizable) {
-      this.$el.querySelector(this.options.selectors.maximize).onclick = null
-      this.$el.querySelector(this.options.selectors.maximize).onclick = function (event) {
+      this.$maximize.onclick = null
+      this.$maximize.onclick = function (event) {
         event.stopPropagation();
         event.preventDefault();
 
@@ -155,82 +163,60 @@ var FabWindow = null,
       };
     }
 
-    this.$el.querySelector(this.options.selectors.close).onclick = null;
-    this.$el.querySelector(this.options.selectors.close).onclick = function (event) {
+    this.$close.onclick = null;
+    this.$close.onclick = function (event) {
       event.stopPropagation();
       event.preventDefault();
 
       that.closeWindow();
     };
 
-    if (this.options.resizable) {
-      this.$resizer.addEventListener('mousedown', initResize);
+    this.$overlay.onclick = null;
+    this.$overlay.onclick = function (event) {
+      event.stopPropagation();
+      event.preventDefault();
 
-      function initResize(e) {
-        window.addEventListener('mousemove', Resize, false);
-        window.addEventListener('mouseup', stopResize, false);
-      }
-      function Resize(e) {
-        that.$el.classList.remove('transition');
+      that.closeWindow();
+    }
 
-        if (e.clientX >= window.outerWidth) return;
-        if (e.clientY >= window.outerHeight) return;
-        that.$el.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
-        that.$el.style.height = (e.clientY - that.$el.offsetTop) + 'px';
-        that.$body.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
-        that.$body.style.height = (e.clientY - that.$el.offsetTop - that.$header.clientHeight) + 'px';
-      }
-      function stopResize(e) {
-        that.$el.classList.add('transition');
-        window.removeEventListener('mousemove', Resize, false);
-        window.removeEventListener('mouseup', stopResize, false);
-      }
-    };
+      if (this.options.resizable) {
+        this.$resizer.addEventListener('mousedown', initResize);
 
-    if (this.options.draggable) {
-      this.initDragWindow();
-    };
+        function initResize(e) {
+          window.addEventListener('mousemove', Resize, false);
+          window.addEventListener('mouseup', stopResize, false);
+        }
+        function Resize(e) {
+          that.$el.classList.remove('transition');
+
+          if (e.clientX >= window.outerWidth) return;
+          if (e.clientY >= window.outerHeight) return;
+          that.$el.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
+          that.$el.style.height = (e.clientY - that.$el.offsetTop) + 'px';
+          that.$body.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
+          that.$body.style.height = (e.clientY - that.$el.offsetTop - that.$header.clientHeight) + 'px';
+        }
+        function stopResize(e) {
+          that.$el.classList.add('transition');
+          window.removeEventListener('mousemove', Resize, false);
+          window.removeEventListener('mouseup', stopResize, false);
+        }
+      };
+
+      if (this.options.draggable) {
+        this.initDragWindow();
+      };
+
   };
 
   FabWindow.prototype.toggleFullScreen = function () {
-    if (!this.window_infos) {
-      this.window_infos = {
-        width: this.$el.clientWidth + 'px',
-        height: this.$el.clientHeight + 'px',
-        top: this.$el.style.top,
-        left: this.$el.style.left,
-        bodyHeight: this.$body.clientHeight + 'px'
-      };
-    }
-
-    if (this.options.maximized) {
-      this.options.maximized = false;
+    if (this.isFullScreen) {
+      this.isFullScreen = false;
       this.$el.classList.remove('fullScreen');
-      if (this.window_infos) {
-        this.$el.style.width = this.window_infos.width;
-        this.$el.style.height = this.window_infos.height;
-        this.$el.style.top = this.window_infos.top;
-        this.$el.style.left = this.window_infos.left;
-
-        this.$body.style.height = this.window_infos.bodyHeight;
-
-        if (this.options.draggable) {
-          this.initDragWindow();
-        }
-
-        delete this.window_infos;
-      }
     } else {
-      this.options.maximized = true
+      this.isFullScreen = true
       this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
-      this.$el.style.width = '';
-      this.$el.style.height = '';
-      this.$el.style.top = 0;
-      this.$el.style.left = 0;
-
-      this.$body.style.width = '';
-      this.$body.style.height = $window.innerHeight - this.$header.clientHeight + 'px';
       this.removeDragging();
     }
   };
@@ -271,8 +257,9 @@ var FabWindow = null,
       pos3 = e.clientX;
       pos4 = e.clientY;
       // set the element's new position:
-      el.style.top = (el.offsetTop - pos2) + "px";
-      el.style.left = (el.offsetLeft - pos1) + "px";
+      el.style.margin = (el.offsetTop - pos2) + "px 0 0 " + (el.offsetLeft - pos1) + "px";
+      // el.style.marginTop = (el.offsetTop - pos2) + "px";
+      // el.style.marginLeft = (el.offsetLeft - pos1) + "px";
     }
 
     var closeDragElement = function () {
@@ -307,7 +294,7 @@ var FabWindow = null,
       if (this.options.height === 'auto') {
         this.options.height = this.$el.clientHeight;
       }
-      this.$body.style.height = parseInt(this.options.height) - this.$header.clientHeight + 'px';
+      //this.$body.style.height = parseInt(this.options.height) - this.$header.clientHeight + 'px';
     }
   };
 
@@ -315,10 +302,12 @@ var FabWindow = null,
     var that = this;
 
     this.$el.classList.add(this.options.effects.out)
+    this.$overlay.classList.add('fade-out');
     // On remove la window une fois l'effet fade-out terminé
     window.setTimeout(function () {
       that.$el.dispatchEvent(new CustomEvent("fabWindowClose"));
       that.$el.remove();
+      that.$overlay.remove();
     }, 800);
   };
 
@@ -335,14 +324,28 @@ var FabWindow = null,
    */
   FabWindow.prototype.stopLoader = function () {
     this.$loader.remove();
-  }
+  };
 
-  FabWindow.prototype.centerWindow = function () {
-    var top = ($window.innerHeight - this.$el.clientHeight) / 2 + 'px';
-    var left = ($window.innerWidth - this.$el.clientWidth) / 2 + 'px';
+  FabWindow.prototype.recalcLayout = function () {
+    var fabContentHeight = this.$body.scrollHeight,
+      modalHeight = this.$el.clientHeight,
+      windowHeight = $window.innerHeight,
+      outerHeight = fabContentHeight + this.$header.clientHeight;
+    // var 
 
-    this.$el.style.top = top;
-    this.$el.style.left = left
-  }
+    if (this.options.onResize && typeof this.options.onResize === 'function') {
+      this.options.onResize(this);
+    }
+
+    if (!this.isFullScreen) {
+      this.$el.style.height = parseInt(fabContentHeight) + (this.$header.clientHeight - 3) + 'px';
+    }
+
+    if (outerHeight > windowHeight) {
+      this.$body.style.height = modalHeight - this.$header.clientHeight + 'px';
+    } else {
+      this.$body.style.height = 'auto';
+    }
+  };
 
 })()

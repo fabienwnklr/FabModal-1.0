@@ -1,19 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="src/assets/css/style.css">
 </head>
+
 <body>
+
     <script src="src/js/FabWindow.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function(){
+        let content = `
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
+                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                `;
+        document.addEventListener('DOMContentLoaded', function () {
             window.fabWindow = new FabWindow({
-                resizable: true,
+                maximizable: true,
+                draggable: true,
             });
+
+            // setTimeout(function () {
+            //     window.fabWindow.setContent('body', content)
+            // }, 3000)
         })
     </script>
 </body>
+
 </html>
