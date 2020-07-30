@@ -77,7 +77,7 @@ var FabWindow = null,
 
     this.initHandlers();
 
-    
+
     (function updateTimer() {
       that.recalcLayout();
       that.timer = setTimeout(updateTimer, 300);
@@ -130,7 +130,7 @@ var FabWindow = null,
     fabWindowIcons.appendChild(fabCloseWindow);
 
     var fabWindowBody = document.createElement('div');
-    fabWindowBody.className = 'fab-content';
+    fabWindowBody.className = 'fab-content fade-in';
     fabWindowBody.style.maxWidth = this.options.width;
     fabWindowBody.style.maxHeight = this.options.height;
     fabWindow.appendChild(fabWindowBody);
@@ -155,57 +155,29 @@ var FabWindow = null,
 
     if (this.options.maximizable) {
       this.$maximize.onclick = null
-      this.$maximize.onclick = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
+      this.$maximize.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
 
         that.toggleFullScreen();
-      };
+      })
     }
 
     this.$close.onclick = null;
-    this.$close.onclick = function (event) {
-      event.stopPropagation();
-      event.preventDefault();
+    this.$close.addEventListener('click', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
 
       that.closeWindow();
-    };
+    })
 
     this.$overlay.onclick = null;
-    this.$overlay.onclick = function (event) {
-      event.stopPropagation();
-      event.preventDefault();
+    this.$overlay.addEventListener('click', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
 
       that.closeWindow();
-    }
-
-      if (this.options.resizable) {
-        this.$resizer.addEventListener('mousedown', initResize);
-
-        function initResize(e) {
-          window.addEventListener('mousemove', Resize, false);
-          window.addEventListener('mouseup', stopResize, false);
-        }
-        function Resize(e) {
-          that.$el.classList.remove('transition');
-
-          if (e.clientX >= window.outerWidth) return;
-          if (e.clientY >= window.outerHeight) return;
-          that.$el.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
-          that.$el.style.height = (e.clientY - that.$el.offsetTop) + 'px';
-          that.$body.style.width = (e.clientX - that.$el.offsetLeft) + 'px';
-          that.$body.style.height = (e.clientY - that.$el.offsetTop - that.$header.clientHeight) + 'px';
-        }
-        function stopResize(e) {
-          that.$el.classList.add('transition');
-          window.removeEventListener('mousemove', Resize, false);
-          window.removeEventListener('mouseup', stopResize, false);
-        }
-      };
-
-      if (this.options.draggable) {
-        this.initDragWindow();
-      };
+    })
 
   };
 
@@ -217,67 +189,9 @@ var FabWindow = null,
       this.isFullScreen = true
       this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
-      this.removeDragging();
     }
   };
 
-  FabWindow.prototype.initDragWindow = function () {
-    var that = this;
-    var el = this.$el;
-
-    that.$header.classList.add('draggable');
-
-    var dragMouseDown = function (e) {
-      e = e || window.event;
-      e.preventDefault();
-      // get the mouse cursor position at startup:
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    };
-
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    if (document.getElementById(el.id).querySelector(that.options.selectors.header)) {
-      // if present, the header is where you move the DIV from:
-      document.getElementById(el.id).querySelector(that.options.selectors.header).onmousedown = dragMouseDown;
-    } else {
-      // otherwise, move the DIV from anywhere inside the DIV:
-      el.onmousedown = dragMouseDown;
-    };
-
-    var elementDrag = function (e) {
-      el.classList.remove('transition');
-      e = e || window.event;
-      e.preventDefault();
-      // calculate the new cursor position:
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      // set the element's new position:
-      el.style.margin = (el.offsetTop - pos2) + "px 0 0 " + (el.offsetLeft - pos1) + "px";
-      // el.style.marginTop = (el.offsetTop - pos2) + "px";
-      // el.style.marginLeft = (el.offsetLeft - pos1) + "px";
-    }
-
-    var closeDragElement = function () {
-      console.log('Stop moving')
-      el.classList.add('transition');
-      // stop moving when mouse button is released:
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
-  };
-
-  FabWindow.prototype.removeDragging = function () {
-    this.$header.onmousedown = null;
-    this.$header.classList.remove('draggable');
-
-    document.onmouseup = null;
-    document.onmousemove = null;
-  };
   /**
    * 
    * @param {string} target Target (cf: initialize function variable starting with '$')
@@ -298,6 +212,9 @@ var FabWindow = null,
     }
   };
 
+  /**
+   * @function closeWindow close, and removing from DOM 
+   */
   FabWindow.prototype.closeWindow = function () {
     var that = this;
 
@@ -330,6 +247,7 @@ var FabWindow = null,
     var fabContentHeight = this.$body.scrollHeight,
       modalHeight = this.$el.clientHeight,
       windowHeight = $window.innerHeight,
+      wrapperHeight = this.$el.clientHeight - this.$header.clientHeight,
       outerHeight = fabContentHeight + this.$header.clientHeight;
     // var 
 
@@ -337,15 +255,40 @@ var FabWindow = null,
       this.options.onResize(this);
     }
 
+    if (this.$el.clientWidth > $window.innerWidth) {
+      this.isFullScreen = true;
+      this.$el.classList.add('fullScreen');
+    } else {
+      this.isFullScreen = false;
+      this.$el.classList.remove('fullScreen');
+    }
+
     if (!this.isFullScreen) {
       this.$el.style.height = parseInt(fabContentHeight) + (this.$header.clientHeight - 3) + 'px';
     }
 
     if (outerHeight > windowHeight) {
-      this.$body.style.height = modalHeight - this.$header.clientHeight + 'px';
+      if (document.querySelectorAll('.fab-window').length === 1) {
+        document.querySelector('html').style.overflow = 'hidden';
+      }
+      this.$el.style.height = windowHeight + 'px';
+
     } else {
-      this.$body.style.height = 'auto';
+      this.$el.style.height = fabContentHeight + (this.$header.clientHeight + 3) + 'px';
+      if (document.querySelectorAll('.fab-window').length === 1) {
+        document.querySelector('html').style.overflow = '';
+      }
     }
+    var that = this;
+    (function applyScroll(){
+      if(fabContentHeight > wrapperHeight && outerHeight > windowHeight){
+        that.$body.classList.add('hasScroll');
+        that.$body.style.height = modalHeight - (that.$header.clientHeight+3) + 'px';
+      } else {
+        that.$body.classList.remove('hasScroll');
+        that.$body.style.height = 'auto';
+      }
+  })();
   };
 
 })()

@@ -49,6 +49,12 @@
 
 }
 
+@media (max-width: 600px) {
+  .fab-window {
+    max-height: 100%!important;
+  }
+}
+
 .fab-window {
   position: fixed;
   top: 0;
@@ -65,8 +71,10 @@
   max-height: 80%;
   z-index: 999;
   border-radius: 5px;
+  overflow: hidden;
   border-bottom: 3px solid $primary;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
 
   &.transition {
     transition: all .2s ease;
@@ -106,10 +114,14 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%!important;
+    height: 100% !important;
     max-width: 100% !important;
     max-height: 100% !important;
     border-radius: 0;
+
+    .maximize {
+      display: none;
+    }
 
     .fab-header {
       border-radius: 0;
@@ -227,12 +239,19 @@
   }
 
   .fab-content {
+    scroll-behavior: smooth;
     position: relative;
     padding: 1rem;
-    overflow-y: auto;
     min-width: 200px;
     min-height: 181px;
     max-width: 100%;
     height: auto;
+
+    &.hasScroll {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
   }
+
+
 }
