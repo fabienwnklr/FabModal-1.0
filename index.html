@@ -13,10 +13,11 @@
     <script src="src/js/FabWindow.js"></script>
     <script>
         let content = `
+        <button class="start">Start progress</button>
                 <button class="pause">Pause progress</button>
                 <button class="resume">Resume progress</button>
                 <button class="reset">Reset progress</button>
-                <button class="start">Start progress</button>
+                <button class="ajax">Load Ajax </button>
                 `;
         document.addEventListener('DOMContentLoaded', function () {
             window.fabWindow = new FabWindow({
@@ -39,10 +40,15 @@
 
                 window.fabWindow.resetProgress();
             })
+            document.querySelector('.ajax').addEventListener('click', function(e){
+                e.preventDefault();
+
+                window.fabWindow.getExternalContent({})
+            })
             document.querySelector('.start').addEventListener('click', function(e){
                 e.preventDefault();
 
-                window.fabWindow.startProgress();
+                window.fabWindow.startProgress(8000);
             })
 
 

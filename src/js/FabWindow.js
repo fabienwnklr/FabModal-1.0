@@ -40,7 +40,7 @@ var FabWindow = null,
       loader: '<div class="loader"></div>',
       // progress bar
       timeoutProgressBar: false,
-      timeout: 8000,
+      timeout: false,
       pauseOnHover: false,
 
       // function
@@ -350,7 +350,7 @@ var FabWindow = null,
     }
   };
 
-  FabWindow.prototype.startProgress = function () {
+  FabWindow.prototype.startProgress = function (timer) {
     this.isPaused = false;
     var that = this;
 
@@ -376,8 +376,8 @@ var FabWindow = null,
           }
         }
       };
-      if (that.options.timeout > 0) {
-        this.progressBar.maxHideTime = parseFloat(that.options.timeout);
+      if (timer > 0) {
+        this.progressBar.maxHideTime = parseFloat(timer);
         this.progressBar.hideEta = new Date().getTime() + this.progressBar.maxHideTime;
         this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
       } else {
@@ -402,5 +402,92 @@ var FabWindow = null,
   FabWindow.prototype.resumeProgress = function () {
     this.isPaused = false;
   };
+
+  FabWindow.prototype.getExternalContent = function (url) {
+    var that = this;
+
+    this.startLoader();
+
+    if (window.fetch) {
+      fetch('https://api.github.com/repos/fabienwnklr/fabWindow')
+        .then(function (response) {
+          return response.json()
+        })
+        .then(function (data) {
+          console.log(data);
+          console.log("FullName: " + data.full_name);
+          console.log("URL: " + data.html_url);
+          console.log("Forks: " + data.forks);
+          console.log("Stars: " + data.stargazers_count);
+          var content = '<ul>';
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">URL</span>: ' + data.html_url;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">Forks</span>: ' + data.forks;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
+          content += '<li>'
+          content += '</ul>';
+          that.setContent('body', content);
+          that.stopLoader();
+        })
+        .catch(function (error) {
+          throw new Error(error)
+        })
+
+    } else {
+      var request;
+      if (window.XMLHttpRequest) {
+        request = new XMLHttpRequest();
+      } else {
+        request = new ActiveXObject('Microsoft.XMLHTTP')
+      }
+
+      if (typeof options !== 'object') {
+        throw new Error('Failed to execute \'loadExternContent\' : parameter is not of type \'Object\'')
+      }
+
+      request.open('GET', 'https://api.github.com/repos/fabienwnklr/fabWindow', true);
+
+      request.onload = function () {
+        if (this.status >= 200 && this.status < 400) {
+          // Success!
+          var data = JSON.parse(this.response);
+          console.log(data);
+          console.log("FullName: " + data.full_name);
+          console.log("URL: " + data.html_url);
+          console.log("Forks: " + data.forks);
+          console.log("Stars: " + data.stargazers_count);
+          var content = '<ul>';
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">URL</span>: ' + data.html_url;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">Forks</span>: ' + data.forks;
+          content += '<li>'
+          content += '<li style="margin: 10px 0 10px 0;">'
+          content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
+          content += '<li>'
+          content += '</ul>';
+          that.setContent('body', content);
+          that.stopLoader();
+        }
+      };
+
+      request.onerror = function (err) {
+        throw new Error(err)
+      };
+
+      request.send();
+    }
+  }
 
 })()
