@@ -33,20 +33,27 @@ var FabWindow = null,
       },
       width: '800px',
       height: 'auto',
-      maximizable: false,
+      maximizable: true,
       minimizable: false,
       title: '',
       bodyContent: '<div class="loader"></div>',
       loader: '<div class="loader"></div>',
+      // progress bar
+      timeoutProgressBar: false,
+      timeout: 8000,
+      pauseOnHover: false,
 
       // function
       onResize: function (fabWindow) { },
       onFullScreen: function (fabWindow) { }
     };
 
-    this.isFullScreen = false,
-      this.isMinimized = false,
-      this.options = Object.assign(defaults, options);
+    this.isPaused = false;
+    this.isFullScreen = false;
+    this.isMinimized = false;
+    this.timerTimeout = null;
+
+    this.options = Object.assign(defaults, options);
 
     this.initialize(this.options);
 
@@ -95,10 +102,14 @@ var FabWindow = null,
       fabWindow.style.maxWidth = this.options.width;
       fabWindow.style.maxHeight = this.options.height;
 
-      if (this.options.resizable) {
-        var fabWindowResizer = document.createElement('span');
-        fabWindowResizer.className = 'resizer';
-        fabWindow.appendChild(fabWindowResizer);
+      if (this.options.timeoutProgressBar) {
+        var fabWindowProgressBar = document.createElement('div');
+        var div = document.createElement('div');
+
+        fabWindowProgressBar.className = 'fab-window-progress-bar';
+        fabWindowProgressBar.appendChild(div);
+
+        fabWindow.appendChild(fabWindowProgressBar);
       }
 
       var fabWindowHeader = document.createElement('div');
@@ -186,6 +197,24 @@ var FabWindow = null,
 
         that.closeWindow();
       })
+
+      // Event progress bar
+      if (this.options.timeoutProgressBar && this.options.timeout !== false && !isNaN(parseInt(this.options.timeout)) && this.options.timeout !== 0) {
+        this.startProgress();
+
+        if (this.options.pauseOnHover === true) {
+          this.$el.onmouseenter = null;
+          this.$el.addEventListener('mouseenter', function (event) {
+            event.preventDefault();
+            that.isPaused = true;
+          });
+          this.$el.onmouseleave = null;
+          this.$el.addEventListener('mouseleave', function (event) {
+            event.preventDefault();
+            that.isPaused = false;
+          });
+        }
+      }
     } catch (error) {
       console.error(error)
     }
@@ -245,6 +274,7 @@ var FabWindow = null,
    */
   FabWindow.prototype.closeWindow = function () {
     var that = this;
+    clearTimeout(this.timerTimeout);
 
     this.$el.classList.add(this.options.effects.out)
     this.$overlay.classList.add('fade-out');
@@ -318,6 +348,59 @@ var FabWindow = null,
     } catch (error) {
       console.error(error)
     }
+  };
+
+  FabWindow.prototype.startProgress = function () {
+    this.isPaused = false;
+    var that = this;
+
+    clearTimeout(this.timerTimeout);
+
+    if (this.options.timeoutProgressBar === true) {
+
+      this.progressBar = {
+        hideEta: null,
+        maxHideTime: null,
+        currentTime: new Date().getTime(),
+        el: this.$el.querySelector('.fab-window-progress-bar > div'),
+        updateProgress: function () {
+          if (!that.isPaused) {
+
+            that.progressBar.currentTime = that.progressBar.currentTime + 10;
+
+            var percentage = ((that.progressBar.hideEta - (that.progressBar.currentTime)) / that.progressBar.maxHideTime) * 100;
+            that.progressBar.el.style.width = percentage + '%';
+            if (percentage < 0) {
+              that.closeWindow();
+            }
+          }
+        }
+      };
+      if (that.options.timeout > 0) {
+        this.progressBar.maxHideTime = parseFloat(that.options.timeout);
+        this.progressBar.hideEta = new Date().getTime() + this.progressBar.maxHideTime;
+        this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
+      } else {
+        this.timerTimeout = setTimeout(function () {
+          that.close();
+        }, that.options.timeout);
+      }
+
+    }
+  };
+
+  FabWindow.prototype.pauseProgress = function () {
+    this.isPaused = true;
+  };
+
+  FabWindow.prototype.resetProgress = function () {
+    clearTimeout(this.timerTimeout);
+    this.progressBar = {};
+    this.$el.querySelector('.fab-window-progress-bar > div').style.width = '100%';
+  };
+
+  FabWindow.prototype.resumeProgress = function () {
+    this.isPaused = false;
   };
 
 })()

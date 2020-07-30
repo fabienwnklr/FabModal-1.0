@@ -352,27 +352,15 @@ table {
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }
   .fab-window.transition {
     transition: all .2s ease; }
-  .fab-window .resizer {
-    width: 25px;
-    height: 16px;
+  .fab-window .fab-window-progress-bar {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    cursor: se-resize;
-    z-index: 9999; }
-    .fab-window .resizer::before, .fab-window .resizer::after {
-      position: absolute;
-      content: ' ';
-      bottom: 0;
-      width: 1px;
-      background-color: #333;
-      transform: rotate(45deg); }
-    .fab-window .resizer::before {
-      height: 10px;
-      right: 5px; }
-    .fab-window .resizer::after {
-      height: 15px;
-      right: 7px; }
+    left: 0;
+    top: 0px;
+    width: 100%;
+    z-index: 1; }
+    .fab-window .fab-window-progress-bar div {
+      height: 2px;
+      background-color: #fff; }
   .fab-window.fullScreen {
     top: 0;
     left: 0;

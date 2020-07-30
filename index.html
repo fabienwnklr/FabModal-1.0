@@ -13,51 +13,39 @@
     <script src="src/js/FabWindow.js"></script>
     <script>
         let content = `
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Perferendis possimus facere blanditiis fuga quaerat debitis ipsa, placeat,
-                voluptate assumenda, voluptatibus quis corrupti fugit veniam dignissimos perspiciatis amet nulla adipisci error!
+                <button class="pause">Pause progress</button>
+                <button class="resume">Resume progress</button>
+                <button class="reset">Reset progress</button>
+                <button class="start">Start progress</button>
                 `;
         document.addEventListener('DOMContentLoaded', function () {
             window.fabWindow = new FabWindow({
                 bodyContent: content,
-                maximizable: true,
-                group: 'groupe1'
+                timeoutProgressBar: true,
             });
 
-            // setTimeout(function () {
-            //     window.fabWindow.setContent('body', content)
-            // }, 3000)
+            document.querySelector('.pause').addEventListener('click', function(e){
+                e.preventDefault();
+
+                window.fabWindow.pauseProgress();
+            })
+            document.querySelector('.resume').addEventListener('click', function(e){
+                e.preventDefault();
+
+                window.fabWindow.resumeProgress();
+            })
+            document.querySelector('.reset').addEventListener('click', function(e){
+                e.preventDefault();
+
+                window.fabWindow.resetProgress();
+            })
+            document.querySelector('.start').addEventListener('click', function(e){
+                e.preventDefault();
+
+                window.fabWindow.startProgress();
+            })
+
+
         })
     </script>
 </body>
