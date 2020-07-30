@@ -255,7 +255,7 @@ var FabWindow = null,
       this.options.onResize(this);
     }
 
-    if (this.$el.clientWidth > $window.innerWidth) {
+    if ($window.innerWidth <= 600) {
       this.isFullScreen = true;
       this.$el.classList.add('fullScreen');
     } else {
