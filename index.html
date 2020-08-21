@@ -13,7 +13,7 @@
     <script src="src/js/FabWindow.js"></script>
     <script>
         let content = `
-        <button class="start">Start progress</button>
+                <button class="start">Start progress</button>
                 <button class="pause">Pause progress</button>
                 <button class="resume">Resume progress</button>
                 <button class="reset">Reset progress</button>
@@ -21,35 +21,38 @@
                 `;
         document.addEventListener('DOMContentLoaded', function () {
             window.fabWindow = new FabWindow({
+                // isIframe: true,
+                // iframeURL: 'https://www.youtube.com/embed/HSsqzzuGTPo',
                 bodyContent: content,
-                timeoutProgressBar: true,
+                // overlayClose: false
+                // timeoutProgressBar: true,
             });
 
-            document.querySelector('.pause').addEventListener('click', function(e){
-                e.preventDefault();
+            // document.querySelector('.pause').addEventListener('click', function(e){
+            //     e.preventDefault();
 
-                window.fabWindow.pauseProgress();
-            })
-            document.querySelector('.resume').addEventListener('click', function(e){
-                e.preventDefault();
+            //     window.fabWindow.pauseProgress();
+            // })
+            // document.querySelector('.resume').addEventListener('click', function(e){
+            //     e.preventDefault();
 
-                window.fabWindow.resumeProgress();
-            })
-            document.querySelector('.reset').addEventListener('click', function(e){
-                e.preventDefault();
+            //     window.fabWindow.resumeProgress();
+            // })
+            // document.querySelector('.reset').addEventListener('click', function(e){
+            //     e.preventDefault();
 
-                window.fabWindow.resetProgress();
-            })
-            document.querySelector('.ajax').addEventListener('click', function(e){
-                e.preventDefault();
+            //     window.fabWindow.resetProgress();
+            // })
+            // document.querySelector('.ajax').addEventListener('click', function(e){
+            //     e.preventDefault();
 
-                window.fabWindow.getExternalContent({})
-            })
-            document.querySelector('.start').addEventListener('click', function(e){
-                e.preventDefault();
+            //     window.fabWindow.getExternalContent({})
+            // })
+            // document.querySelector('.start').addEventListener('click', function(e){
+            //     e.preventDefault();
 
-                window.fabWindow.startProgress(8000);
-            })
+            //     window.fabWindow.startProgress(8000);
+            // })
         })
     </script>
 </body>

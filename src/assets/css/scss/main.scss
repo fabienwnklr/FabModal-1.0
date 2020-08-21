@@ -51,7 +51,7 @@
 
 @media (max-width: 600px) {
   .fab-window {
-    max-height: 100%!important;
+    max-height: 100% !important;
   }
 }
 
@@ -75,11 +75,7 @@
   overflow: hidden;
   border-bottom: 3px solid $primary;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-
-
-  &.transition {
-    transition: all .2s ease;
-  }
+  transition: all .2s ease;
 
   .fab-window-progress-bar {
     position: absolute;
@@ -90,7 +86,7 @@
 
     div {
       height: 2px;
-      background-color: #fff;
+      background-color: $progress-bar-color;
     }
   }
 
@@ -142,6 +138,18 @@
     background: #555;
   }
 
+  &.iframe {
+    border-bottom: none;
+    background-color: #000;
+    .fab-header {
+      background-color: #000;
+    }
+
+    .fab-content {
+      padding: 0;
+    }
+  }
+
   .fab-header {
     display: flex;
     flex-wrap: wrap;
@@ -189,13 +197,15 @@
       }
 
       .maximize {
-        background-image: url(../icon/expand.svg);
-        width: 16px;
-        height: 16px;
+        background: url(../icon/expand.svg) no-repeat center rgba(255, 255, 255, .8);
+        width: 25px;
+        height: 25px;
         opacity: 0.3;
         cursor: pointer;
+        border-radius: 50%;
         transition: opacity .2s ease-in;
         margin-right: .5rem;
+        background-origin: content-box;
 
         &:hover {
           opacity: 1;
@@ -204,15 +214,16 @@
 
       .close {
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
+        width: 25px;
+        height: 25px;
         cursor: pointer;
         opacity: .3;
         transition: transform .2s ease-in, opacity .2s ease-in;
         text-indent: -9999px;
         border: none;
-        background: url(../icon/close.svg) no-repeat 0 0;
+        background: url(../icon/close.svg) no-repeat center rgba(255, 255, 255, .8);
         opacity: 0.3;
+        background-origin: content-box;
 
         &:hover {
           opacity: 1;

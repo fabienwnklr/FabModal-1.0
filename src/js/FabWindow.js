@@ -25,6 +25,7 @@ var FabWindow = null,
         reduce: '.reduce',
         close: '.close',
         body: '.fab-content',
+        iframe: '.fab-iframe',
         loader: '.loader',
       },
       effects: {
@@ -36,12 +37,18 @@ var FabWindow = null,
       maximizable: true,
       minimizable: false,
       title: '',
+      overlayClose: true,
       bodyContent: '<div class="loader"></div>',
       loader: '<div class="loader"></div>',
       // progress bar
       timeoutProgressBar: false,
       timeout: false,
       pauseOnHover: false,
+
+      // iframe
+      isIframe: false,
+      iframeURL: '',
+      iframeHeight: '400px',
 
       // function
       onResize: function (fabWindow) { },
@@ -70,18 +77,25 @@ var FabWindow = null,
     var that = this;
     this.$el = this.createWindow();
 
-    this.$overlay = $body.querySelector(options.selectors.overlay);
+    if (options.overlayClose === true) {
+      this.$overlay = $body.querySelector(options.selectors.overlay);
+    }
     this.$header = this.$el.querySelector(options.selectors.header);
     this.$title = this.$el.querySelector(options.selectors.title);
     this.$icons = this.$el.querySelector(options.selectors.icons);
     this.$reduce = this.$el.querySelector(options.selectors.reduce);
     this.$maximize = this.$el.querySelector(options.selectors.maximize)
     this.$close = this.$el.querySelector(options.selectors.close);
-    this.$body = this.$el.querySelector(options.selectors.body);
-
+    this.$windowBody = this.$el.querySelector(options.selectors.body);
+    
     $body.appendChild(this.$el);
-
-    this.setContent('body', options.bodyContent);
+    
+    if (options.isIframe === false) {
+      this.setContent('windowBody', options.bodyContent);
+    } else {
+      this.setIframeContent();
+      this.$iframe = this.$el.querySelector(options.selectors.iframe);
+    }
 
     this.initHandlers();
     this.show();
@@ -97,7 +111,8 @@ var FabWindow = null,
    */
   FabWindow.prototype.createWindow = function () {
     var fabWindow = document.createElement('div');
-    fabWindow.className = 'fab-window ' + this.options.effects.in + ' transition';
+    var iframe = this.options.isIframe ? ' iframe' : '';
+    fabWindow.className = 'fab-window ' + this.options.effects.in + iframe;
     fabWindow.id = this.options.id;
     fabWindow.style.maxWidth = this.options.width;
     fabWindow.style.maxHeight = this.options.height;
@@ -128,17 +143,20 @@ var FabWindow = null,
     if (this.options.minimizable) {
       var fabReduceWindow = document.createElement('button');
       fabReduceWindow.className = 'reduce';
+      fabReduceWindow.title = 'réduire';
       fabWindowIcons.appendChild(fabReduceWindow)
     }
-
+    
     if (this.options.maximizable) {
       var fabMaximizeWindow = document.createElement('button');
       fabMaximizeWindow.className = 'maximize';
+      fabMaximizeWindow.title = 'Agrandir';
       fabWindowIcons.appendChild(fabMaximizeWindow)
     }
 
     var fabCloseWindow = document.createElement('button');
-    fabCloseWindow.className = 'close'
+    fabCloseWindow.className = 'close';
+    fabCloseWindow.title = 'Fermer';
     fabWindowIcons.appendChild(fabCloseWindow);
 
     var fabWindowBody = document.createElement('div');
@@ -147,7 +165,7 @@ var FabWindow = null,
     fabWindowBody.style.maxHeight = this.options.height;
     fabWindow.appendChild(fabWindowBody);
 
-    if (!document.querySelector(this.options.selectors.overlay)) {
+    if (!document.querySelector(this.options.selectors.overlay) && this.options.overlayClose === true) {
       var fabWindowOverlay = document.createElement('div');
       fabWindowOverlay.className = 'fab-overlay fade-in';
       $body.appendChild(fabWindowOverlay);
@@ -186,13 +204,15 @@ var FabWindow = null,
     })
 
     // Overlay close on click
-    this.$overlay.onclick = null;
-    this.$overlay.addEventListener('click', function (e) {
-      e.stopPropagation();
-      e.preventDefault();
+    if (this.options.overlayClose === true) {
+      this.$overlay.onclick = null;
+      this.$overlay.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
 
-      that.closeWindow();
-    })
+        that.closeWindow();
+      })
+    }
 
     // Event progress bar
     if (this.options.timeoutProgressBar && this.options.timeout !== false && !isNaN(parseInt(this.options.timeout)) && this.options.timeout !== 0) {
@@ -215,22 +235,28 @@ var FabWindow = null,
 
   FabWindow.prototype.show = function () {
     this.$el.style.display = 'block';
-    this.$overlay.style.display = 'block';
+    if (this.$overlay) {
+      this.$overlay.style.display = 'block';
+    }
   };
 
   FabWindow.prototype.hide = function () {
     this.$el.style.display = 'none';
-    this.$overlay.style.display = 'none';
+    if (this.$overlay) {
+      this.$overlay.style.display = 'none';
+    }
   };
 
   FabWindow.prototype.toggleFullScreen = function () {
     if (this.isFullScreen) {
       this.isFullScreen = false;
       this.$el.classList.remove('fullScreen');
+      this.$maximize.title = 'Agrandir';
     } else {
       this.isFullScreen = true
       this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
+      this.$maximize.title = 'Réstaurer';
 
       if (typeof this.options.onFullScreen === 'function') {
         this.options.onFullScreen();
@@ -246,14 +272,14 @@ var FabWindow = null,
   FabWindow.prototype.setContent = function (target, content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       var isLoader = true;
-      if (this.$body.innerHTML !== this.options.loader) {
+      if (this.$windowBody.innerHTML !== this.options.loader) {
         isLoader = false;
       }
       if (!target || target === '' || target === null || typeof target === 'undefined') {
         if (!isLoader) {
-          this.oldContent['body'] = this.$body.innerHTML;
+          this.oldContent['windowBody'] = this.$windowBody.innerHTML;
         }
-        this.$body.innerHTML = content;
+        this.$windowBody.innerHTML = content;
       } else {
         target = '$' + target;
         if (!isLoader) {
@@ -266,6 +292,17 @@ var FabWindow = null,
         this.options.height = this.$el.clientHeight;
       }
     }
+  };
+
+  FabWindow.prototype.setIframeContent = function () {
+    var iframeDOMNode = document.createElement('iframe');
+    iframeDOMNode.allowFullscreen = true;
+    iframeDOMNode.className = 'fab-iframe';
+    iframeDOMNode.width = '100%';
+    iframeDOMNode.height = this.options.iframeHeight;
+    iframeDOMNode.src = this.options.iframeURL;
+
+    this.$windowBody.appendChild(iframeDOMNode);
   };
 
   /**
@@ -286,12 +323,16 @@ var FabWindow = null,
     clearTimeout(this.timerTimeout);
 
     this.$el.classList.add(this.options.effects.out)
-    this.$overlay.classList.add('fade-out');
+    if (this.$overlay) {
+      this.$overlay.classList.add('fade-out');
+    }
     // On remove la window une fois l'effet fade-out terminé
     window.setTimeout(function () {
       that.$el.dispatchEvent(new CustomEvent("fabWindowClose"));
       that.$el.remove();
-      that.$overlay.remove();
+      if (that.$overlay) {
+        that.$overlay.remove();
+      }
     }, 800);
   };
 
@@ -299,7 +340,7 @@ var FabWindow = null,
    * @function startLoader For init loader and clear all content in window
    */
   FabWindow.prototype.startLoader = function () {
-    this.setContent('body', this.options.loader)
+    this.setContent('windowBody', this.options.loader)
     this.$loader = this.$el.querySelector(this.options.selectors.loader);
   };
 
@@ -311,11 +352,12 @@ var FabWindow = null,
   };
 
   FabWindow.prototype.recalcLayout = function () {
-    var fabContentHeight = this.$body.scrollHeight,
+    var fabContentHeight = this.$windowBody.scrollHeight,
       modalHeight = this.$el.clientHeight,
       windowHeight = $window.innerHeight,
       wrapperHeight = this.$el.clientHeight - this.$header.clientHeight,
-      outerHeight = fabContentHeight + this.$header.clientHeight;
+      outerHeight = fabContentHeight + this.$header.clientHeight,
+      borderBottom = this.options.isIframe ? 0 : 3;
 
     if (this.options.onResize && typeof this.options.onResize === 'function') {
       this.options.onResize(this);
@@ -328,7 +370,7 @@ var FabWindow = null,
     }
 
     if (!this.isFullScreen) {
-      this.$el.style.height = parseInt(fabContentHeight) + (this.$header.clientHeight - 3) + 'px';
+      this.$el.style.height = parseInt(fabContentHeight) + (this.$header.clientHeight - borderBottom) + 'px';
     }
 
     if (outerHeight > windowHeight) {
@@ -338,19 +380,34 @@ var FabWindow = null,
       this.$el.style.height = windowHeight + 'px';
 
     } else {
-      this.$el.style.height = fabContentHeight + (this.$header.clientHeight + 3) + 'px';
+      this.$el.style.height = fabContentHeight + (this.$header.clientHeight + borderBottom) + 'px';
       if (document.querySelectorAll('.fab-window').length === 1) {
         document.querySelector('html').style.overflow = '';
+      }
+    }
+
+    if (this.options.isIframe === true) {
+      // If the height of the window is smaller than the modal with iframe
+      if (windowHeight < ((this.options.iframeHeight) + this.$header.clientHeight + borderBottom) || this.isFullScreen === true) {
+        this.$windowBody.style.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
+        if (this.options.isIframe) {
+          this.$iframe.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
+        }
+      } else {
+        this.$windowBody.style.height = this.options.iframeHeight;
+        if (this.options.isIframe) {
+          this.$iframe.height = this.options.iframeHeight;
+        }
       }
     }
     var that = this;
     (function applyScroll() {
       if (fabContentHeight > wrapperHeight && outerHeight > windowHeight) {
-        that.$body.classList.add('hasScroll');
-        that.$body.style.height = modalHeight - (that.$header.clientHeight + 3) + 'px';
-      } else {
-        that.$body.classList.remove('hasScroll');
-        that.$body.style.height = 'auto';
+        that.$windowBody.classList.add('hasScroll');
+        that.$windowBody.style.height = modalHeight - (that.$header.clientHeight + borderBottom) + 'px';
+      } else if (that.options.isIframe === false) {
+        that.$windowBody.classList.remove('hasScroll');
+        that.$windowBody.style.height = 'auto';
       }
     })();
   };
@@ -438,7 +495,7 @@ var FabWindow = null,
           content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
           content += '<li>'
           content += '</ul>';
-          that.setContent('body', content);
+          that.setContent('windowBody', content);
           that.stopLoader();
         })
         .catch(function (error) {
@@ -482,7 +539,7 @@ var FabWindow = null,
           content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
           content += '<li>'
           content += '</ul>';
-          that.setContent('body', content);
+          that.setContent('windowBody', content);
           that.stopLoader();
         }
       };
