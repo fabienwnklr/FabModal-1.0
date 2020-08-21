@@ -403,7 +403,6 @@ table {
     box-shadow: inset 0 -10px 15px -12px rgba(0, 0, 0, 0.3), 0 0 0px #555;
     padding: 1rem;
     cursor: default;
-    border-radius: 5px 5px 0 0;
     background-color: #9e9e9e; }
     .fab-window .fab-header.draggable {
       cursor: move; }

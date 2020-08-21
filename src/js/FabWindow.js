@@ -285,6 +285,18 @@ var FabWindow = null,
     }
   };
 
+  FabWindow.prototype.setTitle = function (title) {
+    this.options.title = title;
+    this.$title.innerHTML = title;
+  };
+
+  FabWindow.prototype.getTitle = function () {
+    return this.options.title;
+  };
+
+  /**
+   * Function create iframe node with URL and insert in windowBody
+   */
   FabWindow.prototype.setIframeContent = function () {
     var iframeDOMNode = document.createElement('iframe');
     iframeDOMNode.allowFullscreen = true;
@@ -465,11 +477,9 @@ var FabWindow = null,
         })
         .then(function (data) {
           console.log(data);
-          console.log("FullName: " + data.full_name);
-          console.log("URL: " + data.html_url);
-          console.log("Forks: " + data.forks);
-          console.log("Stars: " + data.stargazers_count);
-          var content = '<ul>';
+
+          var content = '<button id="back">Back...</button>';
+          content += '<ul>';
           content += '<li style="margin: 10px 0 10px 0;">'
           content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;
           content += '<li>'
