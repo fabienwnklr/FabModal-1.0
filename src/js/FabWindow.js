@@ -59,7 +59,7 @@ var FabWindow = null,
     this.isFullScreen = false;
     this.isMinimized = false;
     this.timerTimeout = null;
-    this.oldContent = {};
+    this.oldContent = null;
 
     this.options = Object.assign(defaults, options);
 
@@ -87,11 +87,11 @@ var FabWindow = null,
     this.$maximize = this.$el.querySelector(options.selectors.maximize)
     this.$close = this.$el.querySelector(options.selectors.close);
     this.$windowBody = this.$el.querySelector(options.selectors.body);
-    
+
     $body.appendChild(this.$el);
-    
+
     if (options.isIframe === false) {
-      this.setContent('windowBody', options.bodyContent);
+      this.setContent(options.bodyContent);
     } else {
       this.setIframeContent();
       this.$iframe = this.$el.querySelector(options.selectors.iframe);
@@ -146,7 +146,7 @@ var FabWindow = null,
       fabReduceWindow.title = 'réduire';
       fabWindowIcons.appendChild(fabReduceWindow)
     }
-    
+
     if (this.options.maximizable) {
       var fabMaximizeWindow = document.createElement('button');
       fabMaximizeWindow.className = 'maximize';
@@ -269,25 +269,16 @@ var FabWindow = null,
    * @param {string} target Target (cf: initialize function variable starting with '$')
    * @param {string} content Content to append
    */
-  FabWindow.prototype.setContent = function (target, content) {
+  FabWindow.prototype.setContent = function (content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       var isLoader = true;
       if (this.$windowBody.innerHTML !== this.options.loader) {
         isLoader = false;
       }
-      if (!target || target === '' || target === null || typeof target === 'undefined') {
-        if (!isLoader) {
-          this.oldContent['windowBody'] = this.$windowBody.innerHTML;
-        }
-        this.$windowBody.innerHTML = content;
-      } else {
-        target = '$' + target;
-        if (!isLoader) {
-          var targetName = target.replace(/\$/i, '');
-          this.oldContent[targetName] = this[target].innerHTML;
-        }
-        this[target].innerHTML = content;
+      if (!isLoader) {
+        this.oldContent = this.$windowBody.innerHTML;
       }
+      this.$windowBody.innerHTML = content;
       if (this.options.height === 'auto') {
         this.options.height = this.$el.clientHeight;
       }
@@ -308,11 +299,8 @@ var FabWindow = null,
   /**
    * Function for reset content to last content insert
    */
-  FabWindow.prototype.resetContent = function (target) {
-    if (!target || target === '' || typeof target === 'undefined' || target === null) {
-      target = 'body';
-    }
-    this.setContent(target, this.oldContent[target]);
+  FabWindow.prototype.resetContent = function () {
+    this.setContent(this.oldContent);
   };
 
   /**
@@ -340,7 +328,7 @@ var FabWindow = null,
    * @function startLoader For init loader and clear all content in window
    */
   FabWindow.prototype.startLoader = function () {
-    this.setContent('windowBody', this.options.loader)
+    this.setContent(this.options.loader)
     this.$loader = this.$el.querySelector(this.options.selectors.loader);
   };
 
@@ -495,7 +483,7 @@ var FabWindow = null,
           content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
           content += '<li>'
           content += '</ul>';
-          that.setContent('windowBody', content);
+          that.setContent(content);
           that.stopLoader();
         })
         .catch(function (error) {
@@ -539,7 +527,7 @@ var FabWindow = null,
           content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
           content += '<li>'
           content += '</ul>';
-          that.setContent('windowBody', content);
+          that.setContent(content);
           that.stopLoader();
         }
       };
