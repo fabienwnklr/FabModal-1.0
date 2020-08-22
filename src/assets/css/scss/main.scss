@@ -85,7 +85,7 @@
     z-index: 1;
 
     div {
-      height: 2px;
+      height: 4px;
       background-color: $progress-bar-color;
     }
   }
@@ -141,6 +141,7 @@
   &.iframe {
     border-bottom: none;
     background-color: #000;
+
     .fab-header {
       background-color: #000;
     }
@@ -151,6 +152,9 @@
   }
 
   .fab-header {
+    -webkit-animation: slideDown 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+    -moz-animation: slideDown 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+    animation: slideDown 0.7s cubic-bezier(0.7, 0, 0.3, 1);
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -165,8 +169,19 @@
       cursor: move;
     }
 
+    .fab-title {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, .8);
+      -webkit-animation: slideIn 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+      -moz-animation: slideIn 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+      animation: slideIn 0.7s cubic-bezier(0.7, 0, 0.3, 1);
+    }
+
     .fab-icons {
       display: flex;
+      -webkit-animation: revealIn 1s cubic-bezier(.16, .81, .32, 1) both;
+      -moz-animation: revealIn 1s cubic-bezier(.16, .81, .32, 1) both;
+      animation: revealIn 1s cubic-bezier(.16, .81, .32, 1) both;
 
       button {
         outline: none;

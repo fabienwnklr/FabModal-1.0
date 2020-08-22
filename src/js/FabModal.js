@@ -1,4 +1,4 @@
-var FabWindow = null,
+var fabModal = null,
   $window = null,
   $body = null;
 (function () {
@@ -7,7 +7,7 @@ var FabWindow = null,
    * 
    * @param {Object} options 
    */
-  FabWindow = function (options) {
+  fabModal = function (options) {
     // Selectors
     $window = window;
     $body = document.querySelector('body');
@@ -42,7 +42,7 @@ var FabWindow = null,
       loader: '<div class="loader"></div>',
       // progress bar
       timeoutProgressBar: false,
-      timeout: false,
+      timeout: false, // Set number for init with progressbar
       pauseOnHover: false,
 
       // iframe
@@ -51,8 +51,8 @@ var FabWindow = null,
       iframeHeight: '400px',
 
       // function
-      onResize: function (fabWindow) { },
-      onFullScreen: function (fabWindow) { }
+      onResize: function (fabModal) { },
+      onFullScreen: function (fabModal) { }
     };
 
     this.isPaused = false;
@@ -73,7 +73,7 @@ var FabWindow = null,
    * 
    * @param {Object} options 
    */
-  FabWindow.prototype.initialize = function (options) {
+  fabModal.prototype.initialize = function (options) {
     var that = this;
     this.$el = this.createWindow();
 
@@ -109,78 +109,78 @@ var FabWindow = null,
   /**
    * @function createWindow This function (like this name saying..) literally construct the html window
    */
-  FabWindow.prototype.createWindow = function () {
-    var fabWindow = document.createElement('div');
+  fabModal.prototype.createWindow = function () {
+    var fabModal = document.createElement('div');
     var iframe = this.options.isIframe ? ' iframe' : '';
-    fabWindow.className = 'fab-window ' + this.options.effects.in + iframe;
-    fabWindow.id = this.options.id;
-    fabWindow.style.maxWidth = this.options.width;
-    fabWindow.style.maxHeight = this.options.height;
+    fabModal.className = 'fab-window ' + this.options.effects.in + iframe;
+    fabModal.id = this.options.id;
+    fabModal.style.maxWidth = this.options.width;
+    fabModal.style.maxHeight = this.options.height;
 
     if (this.options.timeoutProgressBar) {
-      var fabWindowProgressBar = document.createElement('div');
+      var fabModalProgressBar = document.createElement('div');
       var div = document.createElement('div');
 
-      fabWindowProgressBar.className = 'fab-window-progress-bar';
-      fabWindowProgressBar.appendChild(div);
+      fabModalProgressBar.className = 'fab-window-progress-bar';
+      fabModalProgressBar.appendChild(div);
 
-      fabWindow.appendChild(fabWindowProgressBar);
+      fabModal.appendChild(fabModalProgressBar);
     }
 
-    var fabWindowHeader = document.createElement('div');
-    fabWindowHeader.className = 'fab-header';
-    fabWindow.appendChild(fabWindowHeader);
+    var fabModalHeader = document.createElement('div');
+    fabModalHeader.className = 'fab-header';
+    fabModal.appendChild(fabModalHeader);
 
-    var fabWindowTitle = document.createElement('h1');
-    fabWindowTitle.className = 'fab-title';
-    fabWindowTitle.innerHTML = this.options.title;
-    fabWindowHeader.appendChild(fabWindowTitle);
+    var fabModalTitle = document.createElement('h1');
+    fabModalTitle.className = 'fab-title';
+    fabModalTitle.innerHTML = this.options.title;
+    fabModalHeader.appendChild(fabModalTitle);
 
-    var fabWindowIcons = document.createElement('div');
-    fabWindowIcons.className = 'fab-icons';
-    fabWindowHeader.appendChild(fabWindowIcons)
+    var fabModalIcons = document.createElement('div');
+    fabModalIcons.className = 'fab-icons';
+    fabModalHeader.appendChild(fabModalIcons)
 
     if (this.options.minimizable) {
       var fabReduceWindow = document.createElement('button');
       fabReduceWindow.className = 'reduce';
       fabReduceWindow.title = 'réduire';
-      fabWindowIcons.appendChild(fabReduceWindow)
+      fabModalIcons.appendChild(fabReduceWindow)
     }
 
     if (this.options.maximizable) {
       var fabMaximizeWindow = document.createElement('button');
       fabMaximizeWindow.className = 'maximize';
       fabMaximizeWindow.title = 'Agrandir';
-      fabWindowIcons.appendChild(fabMaximizeWindow)
+      fabModalIcons.appendChild(fabMaximizeWindow)
     }
 
     var fabCloseWindow = document.createElement('button');
     fabCloseWindow.className = 'close';
     fabCloseWindow.title = 'Fermer';
-    fabWindowIcons.appendChild(fabCloseWindow);
+    fabModalIcons.appendChild(fabCloseWindow);
 
-    var fabWindowBody = document.createElement('div');
-    fabWindowBody.className = 'fab-content fade-in';
-    fabWindowBody.style.maxWidth = this.options.width;
-    fabWindowBody.style.maxHeight = this.options.height;
-    fabWindow.appendChild(fabWindowBody);
+    var fabModalBody = document.createElement('div');
+    fabModalBody.className = 'fab-content fade-in';
+    fabModalBody.style.maxWidth = this.options.width;
+    fabModalBody.style.maxHeight = this.options.height;
+    fabModal.appendChild(fabModalBody);
 
     if (!document.querySelector(this.options.selectors.overlay) && this.options.overlayClose === true) {
-      var fabWindowOverlay = document.createElement('div');
-      fabWindowOverlay.className = 'fab-overlay fade-in';
-      $body.appendChild(fabWindowOverlay);
+      var fabModalOverlay = document.createElement('div');
+      fabModalOverlay.className = 'fab-overlay fade-in';
+      $body.appendChild(fabModalOverlay);
     }
 
     // On retire la class après l'affichage de la window pour plus de propreté
     var that = this;
     setTimeout(function () {
-      fabWindow.classList.remove(that.options.effects.in);
+      fabModal.classList.remove(that.options.effects.in);
     }, 1000)
 
-    return fabWindow;
+    return fabModal;
   };
 
-  FabWindow.prototype.initHandlers = function () {
+  fabModal.prototype.initHandlers = function () {
     var that = this;
 
     // FullScreen event
@@ -216,7 +216,7 @@ var FabWindow = null,
 
     // Event progress bar
     if (this.options.timeoutProgressBar && this.options.timeout !== false && !isNaN(parseInt(this.options.timeout)) && this.options.timeout !== 0) {
-      this.startProgress();
+      this.startProgress(parseInt(this.options.timeout));
 
       if (this.options.pauseOnHover === true) {
         this.$el.onmouseenter = null;
@@ -233,21 +233,21 @@ var FabWindow = null,
     }
   };
 
-  FabWindow.prototype.show = function () {
+  fabModal.prototype.show = function () {
     this.$el.style.display = 'block';
     if (this.$overlay) {
       this.$overlay.style.display = 'block';
     }
   };
 
-  FabWindow.prototype.hide = function () {
+  fabModal.prototype.hide = function () {
     this.$el.style.display = 'none';
     if (this.$overlay) {
       this.$overlay.style.display = 'none';
     }
   };
 
-  FabWindow.prototype.toggleFullScreen = function () {
+  fabModal.prototype.toggleFullScreen = function () {
     if (this.isFullScreen) {
       this.isFullScreen = false;
       this.$el.classList.remove('fullScreen');
@@ -269,7 +269,7 @@ var FabWindow = null,
    * @param {string} target Target (cf: initialize function variable starting with '$')
    * @param {string} content Content to append
    */
-  FabWindow.prototype.setContent = function (content) {
+  fabModal.prototype.setContent = function (content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       var isLoader = true;
       if (this.$windowBody.innerHTML !== this.options.loader) {
@@ -285,19 +285,19 @@ var FabWindow = null,
     }
   };
 
-  FabWindow.prototype.setTitle = function (title) {
+  fabModal.prototype.setTitle = function (title) {
     this.options.title = title;
     this.$title.innerHTML = title;
   };
 
-  FabWindow.prototype.getTitle = function () {
+  fabModal.prototype.getTitle = function () {
     return this.options.title;
   };
 
   /**
    * Function create iframe node with URL and insert in windowBody
    */
-  FabWindow.prototype.setIframeContent = function () {
+  fabModal.prototype.setIframeContent = function () {
     var iframeDOMNode = document.createElement('iframe');
     iframeDOMNode.allowFullscreen = true;
     iframeDOMNode.className = 'fab-iframe';
@@ -311,14 +311,14 @@ var FabWindow = null,
   /**
    * Function for reset content to last content insert
    */
-  FabWindow.prototype.resetContent = function () {
+  fabModal.prototype.resetContent = function () {
     this.setContent(this.oldContent);
   };
 
   /**
    * @function closeWindow close, and removing from DOM 
    */
-  FabWindow.prototype.closeWindow = function () {
+  fabModal.prototype.closeWindow = function () {
     var that = this;
     clearTimeout(this.timerTimeout);
 
@@ -328,7 +328,7 @@ var FabWindow = null,
     }
     // On remove la window une fois l'effet fade-out terminé
     window.setTimeout(function () {
-      that.$el.dispatchEvent(new CustomEvent("fabWindowClose"));
+      that.$el.dispatchEvent(new CustomEvent("fabModalClose"));
       that.$el.remove();
       if (that.$overlay) {
         that.$overlay.remove();
@@ -339,7 +339,7 @@ var FabWindow = null,
   /**
    * @function startLoader For init loader and clear all content in window
    */
-  FabWindow.prototype.startLoader = function () {
+  fabModal.prototype.startLoader = function () {
     this.setContent(this.options.loader)
     this.$loader = this.$el.querySelector(this.options.selectors.loader);
   };
@@ -347,11 +347,11 @@ var FabWindow = null,
   /**
    * @function stopLoader for remove loader init with startLoader
    */
-  FabWindow.prototype.stopLoader = function () {
+  fabModal.prototype.stopLoader = function () {
     this.$loader.remove();
   };
 
-  FabWindow.prototype.recalcLayout = function () {
+  fabModal.prototype.recalcLayout = function () {
     var fabContentHeight = this.$windowBody.scrollHeight,
       modalHeight = this.$el.clientHeight,
       windowHeight = $window.innerHeight,
@@ -412,7 +412,7 @@ var FabWindow = null,
     })();
   };
 
-  FabWindow.prototype.startProgress = function (timer) {
+  fabModal.prototype.startProgress = function (timer) {
     this.isPaused = false;
     var that = this;
 
@@ -444,34 +444,34 @@ var FabWindow = null,
         this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
       } else {
         this.timerTimeout = setTimeout(function () {
-          that.close();
+          that.closeWindow();
         }, that.options.timeout);
       }
 
     }
   };
 
-  FabWindow.prototype.pauseProgress = function () {
+  fabModal.prototype.pauseProgress = function () {
     this.isPaused = true;
   };
 
-  FabWindow.prototype.resetProgress = function () {
+  fabModal.prototype.resetProgress = function () {
     clearTimeout(this.timerTimeout);
     this.progressBar = {};
     this.$el.querySelector('.fab-window-progress-bar > div').style.width = '100%';
   };
 
-  FabWindow.prototype.resumeProgress = function () {
+  fabModal.prototype.resumeProgress = function () {
     this.isPaused = false;
   };
 
-  FabWindow.prototype.getExternalContent = function (url) {
+  fabModal.prototype.getExternalContent = function (url) {
     var that = this;
 
     this.startLoader();
 
     if (window.fetch) {
-      fetch('https://api.github.com/repos/fabienwnklr/fabWindow')
+      fetch('https://api.github.com/repos/fabienwnklr/fabModal')
         .then(function (response) {
           return response.json()
         })
@@ -512,7 +512,7 @@ var FabWindow = null,
         throw new Error('Failed to execute \'loadExternContent\' : parameter is not of type \'Object\'')
       }
 
-      request.open('GET', 'https://api.github.com/repos/fabienwnklr/fabWindow', true);
+      request.open('GET', 'https://api.github.com/repos/fabienwnklr/fabModal', true);
 
       request.onload = function () {
         if (this.status >= 200 && this.status < 400) {
