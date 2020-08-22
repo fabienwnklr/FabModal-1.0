@@ -143,12 +143,6 @@ var fabModal = null,
       }
     }
 
-    if ($window.innerWidth <= 600) {
-      modal.$maximize.style.display = 'none';
-    } else {
-      modal.$maximize.style.display = 'block';
-    }
-
     if (!modal.isFullScreen) {
       modal.$el.style.height = parseInt(fabContentHeight) + (modal.$header.clientHeight - borderBottom) + 'px';
     }

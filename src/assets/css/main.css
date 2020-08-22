@@ -458,8 +458,6 @@ table {
     max-width: 100% !important;
     max-height: 100% !important;
     border-radius: 0; }
-    .fab-window.fullScreen .maximize {
-      display: none; }
     .fab-window.fullScreen .fab-header {
       border-radius: 0; }
     .fab-window.fullScreen .fab-header.fab-icons.maximize {
