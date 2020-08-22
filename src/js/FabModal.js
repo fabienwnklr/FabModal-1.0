@@ -4,10 +4,26 @@ var fabModal = null,
 (function () {
   'use strict';
   /**
-   * 
-   * @param {Object} options 
+   * Create you're custom fabModal
+   * @param {Object} options
+   * @param {String} options.title default is empty
+   * @param {String} options.content default is loader
+   * @param {Boolean} options.maximizable default is true
+   * @param {Boolean} options.minimizable default is true
+   * @param {Boolean} options.timeoutProgressBar default is false
+   * @param {Number} options.timeout Default is false
+   * @param {Boolean} options.pauseOnHover Default is false
+   * @param {Boolean} options.isIframe default is false
+   * @param {String} options.iframeURL default is empty
+   * @param {String} options.iframeHeight default is 400px
+   * @param {Function} options.onFullscreen called when fullscreen completed
+   * @param {Function} options.onRestore called when restore modal size
+   * @param {Function} options.onResize called on resize
+   * @param {Function} options.onOpen called when modal showing
+   * @param {Function} options.onClosing called during closing
+   * @param {Function} options.onClosed called closed is completed
    */
-  fabModal = function (options) {
+  fabModal = function fabModal(options) {
     // Selectors
     $window = window;
     $body = document.querySelector('body');
@@ -45,25 +61,20 @@ var fabModal = null,
       timeoutProgressBar: false,
       timeout: false, // Set number for init with progressbar
       pauseOnHover: false,
-
       // iframe
       isIframe: false,
       iframeURL: '',
       iframeHeight: '400px',
 
       // function
-      onFullscreen: function () { },
-      onRestore: function () { },
-      onResize: function () { },
-      onOpen: function () { },
-      /**
-       * During closing
-       */
-      onClosing: function () { },
-      /**
-       * When modal are closed
-       */
-      onClosed: function () { },
+      onFullscreen: function onFullscreen() { },
+      onRestore: function onRestore() { },
+      onResize: function onResize() { },
+      onOpen: function onOpen() { },
+      // During closing
+      onClosing: function onClosing() { },
+      // When modal are closed
+      onClosed: function onClosed() { },
     };
 
     this.isPaused = false;
@@ -81,10 +92,10 @@ var fabModal = null,
   };
 
 
-  /** Utils function */
+  /** Utils private function */
 
   /**
-   * Private function for check if url is valid
+   * check if url is valid
    * @param {string} url 
    */
   function validURL(url) {
@@ -97,6 +108,9 @@ var fabModal = null,
     return !!pattern.test(url);
   };
 
+  /** For générate HTML custom fab-error
+   * @param {String} message Message to display on modal
+   */
   function generateError(message) {
     if (message && message !== '') {
       var errorDOMNode = document.createElement('div');
@@ -109,14 +123,90 @@ var fabModal = null,
     }
   };
 
-  /** Utils function end */
+  /**
+   * Recalcule layout of modal
+   * @param {Object} modal fabModal object
+   */
+  function recalcLayout(modal) {
+    var fabContentHeight = modal.$windowBody.scrollHeight,
+      modalHeight = modal.$el.clientHeight,
+      windowHeight = $window.innerHeight,
+      wrapperHeight = modal.$el.clientHeight - modal.$header.clientHeight,
+      outerHeight = fabContentHeight + modal.$header.clientHeight,
+      borderBottom = modal.options.isIframe ? 0 : 3;
+
+    if (modalHeight !== modal.modalHeight) {
+      modal.modalHeight = modalHeight;
+
+      if (typeof modal.options.onResize === 'function') {
+        modal.options.onResize(modal);
+      }
+    }
+
+    if ($window.innerWidth <= 600) {
+      modal.$maximize.style.display = 'none';
+    } else {
+      modal.$maximize.style.display = 'block';
+    }
+
+    if (!modal.isFullScreen) {
+      modal.$el.style.height = parseInt(fabContentHeight) + (modal.$header.clientHeight - borderBottom) + 'px';
+    }
+
+    if (outerHeight > windowHeight) {
+      if (document.querySelectorAll('.fab-window').length === 1) {
+        document.querySelector('html').style.overflow = 'hidden';
+      }
+      modal.$el.style.height = windowHeight + 'px';
+
+    } else {
+      modal.$el.style.height = fabContentHeight + (modal.$header.clientHeight + borderBottom) + 'px';
+      if (document.querySelectorAll('.fab-window').length === 1) {
+        document.querySelector('html').style.overflow = '';
+      }
+    }
+
+    if (modalHeight !== modal.modalHeight) {
+      modal.modalHeight = modalHeight;
+
+      if (modal.options.onResize && typeof modal.options.onResize === 'function') {
+        modal.options.onResize(modal);
+      }
+    }
+
+    if (modal.options.isIframe === true) {
+      // If the height of the window is smaller than the modal with iframe
+      if (windowHeight < ((modal.options.iframeHeight) + modal.$header.clientHeight + borderBottom) || modal.isFullScreen === true) {
+        modal.$windowBody.style.height = windowHeight - (modal.$header.clientHeight + borderBottom) + 'px';
+        if (modal.options.isIframe && modal.$iframe) {
+          modal.$iframe.height = windowHeight - (modal.$header.clientHeight + borderBottom) + 'px';
+        }
+      } else {
+        modal.$windowBody.style.height = modal.options.iframeHeight;
+        if (modal.options.isIframe && modal.$iframe) {
+          modal.$iframe.height = modal.options.iframeHeight;
+        }
+      }
+    }
+    (function applyScroll() {
+      if (fabContentHeight > wrapperHeight && outerHeight > windowHeight) {
+        modal.$windowBody.classList.add('hasScroll');
+        modal.$windowBody.style.height = modalHeight - (modal.$header.clientHeight + borderBottom) + 'px';
+      } else if (modal.options.isIframe === false) {
+        modal.$windowBody.classList.remove('hasScroll');
+        modal.$windowBody.style.height = 'auto';
+      }
+    })();
+  };
+
+  /** ----------------------------- */
 
   /**
-   * @function initialize This function init 
+   * Init all utilities of modal 
    * 
    * @param {Object} options 
    */
-  fabModal.prototype.initialize = function (options) {
+  fabModal.prototype.initialize = function initialize(options) {
     var that = this;
     this.$el = this.createWindow();
 
@@ -136,7 +226,7 @@ var fabModal = null,
     if (options.isIframe === false) {
       this.setContent(options.content);
     } else {
-      this.setIframeContent();
+      this.generateIframe();
       this.$iframe = this.$el.querySelector(options.selectors.iframe);
     }
 
@@ -144,15 +234,16 @@ var fabModal = null,
     this.show();
 
     (function updateTimer() {
-      that.recalcLayout();
-      that.timer = setTimeout(updateTimer, 300);
+      recalcLayout(that);
+      that.timerRecalcLayout = setTimeout(updateTimer, 300);
     })();
   };
 
   /**
-   * @function createWindow This function (like this name saying..) literally construct the html window
+   * Create modal
+   * @return fabModal object
    */
-  fabModal.prototype.createWindow = function () {
+  fabModal.prototype.createWindow = function createWindow() {
     var fabModal = document.createElement('div');
     var iframe = this.options.isIframe ? ' iframe' : '';
     fabModal.className = 'fab-window ' + this.options.effects.in + iframe;
@@ -209,14 +300,17 @@ var fabModal = null,
 
     // On retire la class après l'affichage de la window pour plus de propreté
     var that = this;
-    setTimeout(function () {
+    setTimeout(function removeClassEffect() {
       fabModal.classList.remove(that.options.effects.in);
     }, 1000)
 
     return fabModal;
   };
 
-  fabModal.prototype.initHandlers = function () {
+  /**
+   * init all event on modal
+   */
+  fabModal.prototype.initHandlers = function initHandlers() {
     var that = this;
 
     // FullScreen event
@@ -236,7 +330,7 @@ var fabModal = null,
       e.stopPropagation();
       e.preventDefault();
 
-      that.closeWindow();
+      that.closeModal();
     })
 
     // Overlay close on click
@@ -246,7 +340,7 @@ var fabModal = null,
         e.stopPropagation();
         e.preventDefault();
 
-        that.closeWindow();
+        that.closeModal();
       })
     }
 
@@ -269,7 +363,10 @@ var fabModal = null,
     }
   };
 
-  fabModal.prototype.show = function () {
+  /**
+   * Function showing the modal 
+   */
+  fabModal.prototype.show = function show() {
     this.$el.style.display = 'block';
     this.$el.style.opacity = 1;
     if (this.$overlay) {
@@ -281,14 +378,20 @@ var fabModal = null,
     }
   };
 
-  fabModal.prototype.hide = function () {
+  /**
+   * Function hiding the modal
+   */
+  fabModal.prototype.hide = function hide() {
     this.$el.style.display = 'none';
     if (this.$overlay) {
       this.$overlay.style.display = 'none';
     }
   };
 
-  fabModal.prototype.toggleFullScreen = function () {
+  /**
+   * Function for set or unset fullscreen on modal
+   */
+  fabModal.prototype.toggleFullScreen = function toggleFullScreen() {
     if (this.isFullScreen) {
       this.isFullScreen = false;
       this.$el.classList.remove('fullScreen');
@@ -311,11 +414,10 @@ var fabModal = null,
   };
 
   /**
-   * 
-   * @param {string} target Target (cf: initialize function variable starting with '$')
+   * Function for setting content of modal
    * @param {string} content Content to append
    */
-  fabModal.prototype.setContent = function (content) {
+  fabModal.prototype.setContent = function setContent(content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       var isLoader = true;
       if (this.$windowBody.innerHTML !== this.options.loader) {
@@ -331,19 +433,26 @@ var fabModal = null,
     }
   };
 
-  fabModal.prototype.setTitle = function (title) {
+  /**
+   * Function for set a new title
+   * @param {string} title new title
+   */
+  fabModal.prototype.setTitle = function setTitle(title) {
     this.options.title = title;
     this.$title.innerHTML = title;
   };
 
-  fabModal.prototype.getTitle = function () {
+  /**
+   * Getter for title property
+   */
+  fabModal.prototype.getTitle = function getTitle() {
     return this.options.title;
   };
 
   /**
    * Function create iframe node with URL and insert in windowBody
    */
-  fabModal.prototype.setIframeContent = function () {
+  fabModal.prototype.generateIframe = function generateIframe() {
     var iframeDOMNode = document.createElement('iframe');
     iframeDOMNode.allowFullscreen = true;
     iframeDOMNode.className = 'fab-iframe';
@@ -369,16 +478,19 @@ var fabModal = null,
   /**
    * Function for reset content to last content insert
    */
-  fabModal.prototype.resetContent = function () {
-    this.setContent(this.oldContent);
+  fabModal.prototype.resetContent = function resetContent() {
+    if (this.oldContent && this.oldContent !== '' && typeof this.oldContent !== 'undefined') {
+      this.setContent(this.oldContent);
+    }
   };
 
   /**
-   * @function closeWindow close, and removing from DOM 
+   * Function closeModal [close, and removing from DOM] 
    */
-  fabModal.prototype.closeWindow = function () {
+  fabModal.prototype.closeModal = function closeModal() {
     var that = this;
     clearTimeout(this.timerTimeout);
+    clearTimeout(this.timerRecalcLayout);
 
     if (typeof this.options.onClosing === "function") {
       this.options.onClosing(this);
@@ -389,7 +501,7 @@ var fabModal = null,
       this.$overlay.classList.add('fade-out');
     }
     // On remove la window une fois l'effet fade-out terminé
-    window.setTimeout(function () {
+    window.setTimeout(function close() {
       that.$el.dispatchEvent(new CustomEvent("fabModalClose"));
       that.$el.remove();
       if (that.$overlay) {
@@ -402,94 +514,25 @@ var fabModal = null,
   };
 
   /**
-   * @function startLoader For init loader and clear all content in window
+   * Function startLoader For init loader and clear all content in window
    */
-  fabModal.prototype.startLoader = function () {
+  fabModal.prototype.startLoader = function startLoader() {
     this.setContent(this.options.loader)
     this.$loader = this.$el.querySelector(this.options.selectors.loader);
   };
 
   /**
-   * @function stopLoader for remove loader init with startLoader
+   * Function stopLoader for remove loader init with startLoader
    */
-  fabModal.prototype.stopLoader = function () {
+  fabModal.prototype.stopLoader = function stopLoader() {
     this.$loader.remove();
   };
 
-  fabModal.prototype.recalcLayout = function () {
-    var fabContentHeight = this.$windowBody.scrollHeight,
-      modalHeight = this.$el.clientHeight,
-      windowHeight = $window.innerHeight,
-      wrapperHeight = this.$el.clientHeight - this.$header.clientHeight,
-      outerHeight = fabContentHeight + this.$header.clientHeight,
-      borderBottom = this.options.isIframe ? 0 : 3;
-
-    if (modalHeight !== this.modalHeight) {
-      this.modalHeight = modalHeight;
-
-      if (typeof this.options.onResize === 'function') {
-        this.options.onResize(this);
-      }
-    }
-
-    if ($window.innerWidth <= 600) {
-      this.$maximize.style.display = 'none';
-    } else {
-      this.$maximize.style.display = 'block';
-    }
-
-    if (!this.isFullScreen) {
-      this.$el.style.height = parseInt(fabContentHeight) + (this.$header.clientHeight - borderBottom) + 'px';
-    }
-
-    if (outerHeight > windowHeight) {
-      if (document.querySelectorAll('.fab-window').length === 1) {
-        document.querySelector('html').style.overflow = 'hidden';
-      }
-      this.$el.style.height = windowHeight + 'px';
-
-    } else {
-      this.$el.style.height = fabContentHeight + (this.$header.clientHeight + borderBottom) + 'px';
-      if (document.querySelectorAll('.fab-window').length === 1) {
-        document.querySelector('html').style.overflow = '';
-      }
-    }
-
-    if (modalHeight !== this.modalHeight) {
-      this.modalHeight = modalHeight;
-
-      if (this.options.onResize && typeof this.options.onResize === 'function') {
-        this.options.onResize(this);
-      }
-    }
-
-    if (this.options.isIframe === true) {
-      // If the height of the window is smaller than the modal with iframe
-      if (windowHeight < ((this.options.iframeHeight) + this.$header.clientHeight + borderBottom) || this.isFullScreen === true) {
-        this.$windowBody.style.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
-        if (this.options.isIframe && this.$iframe) {
-          this.$iframe.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
-        }
-      } else {
-        this.$windowBody.style.height = this.options.iframeHeight;
-        if (this.options.isIframe && this.$iframe) {
-          this.$iframe.height = this.options.iframeHeight;
-        }
-      }
-    }
-    var that = this;
-    (function applyScroll() {
-      if (fabContentHeight > wrapperHeight && outerHeight > windowHeight) {
-        that.$windowBody.classList.add('hasScroll');
-        that.$windowBody.style.height = modalHeight - (that.$header.clientHeight + borderBottom) + 'px';
-      } else if (that.options.isIframe === false) {
-        that.$windowBody.classList.remove('hasScroll');
-        that.$windowBody.style.height = 'auto';
-      }
-    })();
-  };
-
-  fabModal.prototype.startProgress = function (timer) {
+  /**
+   * Function starting progress bar
+   * @param {Integer} timer In millisecond
+   */
+  fabModal.prototype.startProgress = function startProgress(timer) {
     this.isPaused = false;
     var that = this;
 
@@ -502,7 +545,7 @@ var fabModal = null,
         maxHideTime: null,
         currentTime: new Date().getTime(),
         el: this.$el.querySelector('.fab-window-progress-bar > div'),
-        updateProgress: function () {
+        updateProgress: function updateProgress() {
           if (!that.isPaused) {
 
             that.progressBar.currentTime = that.progressBar.currentTime + 10;
@@ -510,7 +553,7 @@ var fabModal = null,
             var percentage = ((that.progressBar.hideEta - (that.progressBar.currentTime)) / that.progressBar.maxHideTime) * 100;
             that.progressBar.el.style.width = percentage + '%';
             if (percentage < 0) {
-              that.closeWindow();
+              that.closeModal();
             }
           }
         }
@@ -520,35 +563,44 @@ var fabModal = null,
         this.progressBar.hideEta = new Date().getTime() + this.progressBar.maxHideTime;
         this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
       } else {
-        this.timerTimeout = setTimeout(function () {
-          that.closeWindow();
+        this.timerTimeout = setTimeout(function closeOnEndProgress() {
+          that.closeModal();
         }, that.options.timeout);
       }
 
     }
   };
 
-  fabModal.prototype.pauseProgress = function () {
+  /** Pause progress bar */
+  fabModal.prototype.pauseProgress = function pauseProgress() {
     this.isPaused = true;
   };
 
-  fabModal.prototype.resetProgress = function () {
+  /** Reset (don't restart) progress bar */
+  fabModal.prototype.resetProgress = function resetProgress() {
     clearTimeout(this.timerTimeout);
     this.progressBar = {};
     this.$el.querySelector('.fab-window-progress-bar > div').style.width = '100%';
   };
 
-  fabModal.prototype.resumeProgress = function () {
+  /** Resume progress bar */
+  fabModal.prototype.resumeProgress = function resumeProgress() {
     this.isPaused = false;
   };
 
-  fabModal.prototype.getExternalContent = function (url) {
+  /** For get extern content (fetch by default, XMLHttpRequest if fetch not defined)
+   * @param {string} url url to get
+  */
+  fabModal.prototype.getExternalContent = function getExternalContent(url) {
     var that = this;
+    if (!url || typeof ulr === 'undefined' || url === null) {
+      url = 'https://api.github.com/repos/fabienwnklr/fabModal';
+    }
 
     this.startLoader();
 
     if (window.fetch) {
-      fetch('https://api.github.com/repos/fabienwnklr/fabModal')
+      fetch(url)
         .then(function (response) {
           return response.json()
         })
@@ -589,7 +641,7 @@ var fabModal = null,
         throw new Error('Failed to execute \'loadExternContent\' : parameter is not of type \'Object\'')
       }
 
-      request.open('GET', 'https://api.github.com/repos/fabienwnklr/fabModal', true);
+      request.open('GET', url, true);
 
       request.onload = function () {
         if (this.status >= 200 && this.status < 400) {
