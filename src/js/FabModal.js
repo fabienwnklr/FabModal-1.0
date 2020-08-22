@@ -241,7 +241,6 @@ var fabModal = null,
 
   /**
    * Create modal
-   * @return fabModal object
    */
   fabModal.prototype.createWindow = function createWindow() {
     var fabModal = document.createElement('div');
@@ -602,28 +601,18 @@ var fabModal = null,
     if (window.fetch) {
       fetch(url)
         .then(function (response) {
-          return response.json()
-        })
-        .then(function (data) {
-          console.log(data);
-
-          var content = '<button id="back">Back...</button>';
-          content += '<ul>';
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">URL</span>: ' + data.html_url;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">Forks</span>: ' + data.forks;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
-          content += '<li>'
-          content += '</ul>';
-          that.setContent(content);
-          that.stopLoader();
+          return response.json().then(function (data) {
+            var content = '<button id="back">Back...</button>';
+            content += '<ul>';
+            for (var property in data) {
+              content += '<li style="margin: 20px 0 20px 0;">'
+              content += '<span style="font-weight:bold;">' + property + '</span>: ' + data[property];
+              content += '<li>'
+            }
+            content += '</ul>';
+            that.setContent(content);
+            that.stopLoader();
+          })
         })
         .catch(function (error) {
           throw new Error(error)
@@ -638,7 +627,7 @@ var fabModal = null,
       }
 
       if (typeof options !== 'object') {
-        throw new Error('Failed to execute \'loadExternContent\' : parameter is not of type \'Object\'')
+        throw new Error('Failed to execute \'getExternalContent\' : parameter is not of type \'Object\'')
       }
 
       request.open('GET', url, true);
@@ -647,20 +636,13 @@ var fabModal = null,
         if (this.status >= 200 && this.status < 400) {
           // Success!
           var data = JSON.parse(this.response);
-          console.log(data);
-          var content = '<ul>';
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">URL</span>: ' + data.html_url;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">Forks</span>: ' + data.forks;
-          content += '<li>'
-          content += '<li style="margin: 10px 0 10px 0;">'
-          content += '<span style="font-weight:bold;">Stars</span>: ' + data.stargazers_count;
-          content += '<li>'
+          var content = '<button id="back">Back...</button>';
+          content += '<ul>';
+          for (var property in data) {
+            content += '<li style="margin: 20px 0 20px 0;">'
+            content += '<span style="font-weight:bold;">' + property + '</span>: ' + data[property];
+            content += '<li>'
+          }
           content += '</ul>';
           that.setContent(content);
           that.stopLoader();
