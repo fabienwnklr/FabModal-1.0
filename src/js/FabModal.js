@@ -38,7 +38,8 @@ var fabModal = null,
       minimizable: false,
       title: '',
       overlayClose: true,
-      bodyContent: '<div class="loader"></div>',
+      // Custom | default content
+      content: '<div class="loader"></div>',
       loader: '<div class="loader"></div>',
       // progress bar
       timeoutProgressBar: false,
@@ -51,8 +52,18 @@ var fabModal = null,
       iframeHeight: '400px',
 
       // function
-      onResize: function (fabModal) { },
-      onFullScreen: function (fabModal) { }
+      onFullscreen: function () { },
+      onRestore: function () { },
+      onResize: function () { },
+      onOpen: function () { },
+      /**
+       * During closing
+       */
+      onClosing: function () { },
+      /**
+       * When modal are closed
+       */
+      onClosed: function () { },
     };
 
     this.isPaused = false;
@@ -60,6 +71,7 @@ var fabModal = null,
     this.isMinimized = false;
     this.timerTimeout = null;
     this.oldContent = null;
+    this.modalHeight = 0;
 
     this.options = Object.assign(defaults, options);
 
@@ -67,6 +79,37 @@ var fabModal = null,
 
 
   };
+
+
+  /** Utils function */
+
+  /**
+   * Private function for check if url is valid
+   * @param {string} url 
+   */
+  function validURL(url) {
+    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+    return !!pattern.test(url);
+  };
+
+  function generateError(message) {
+    if (message && message !== '') {
+      var errorDOMNode = document.createElement('div');
+      errorDOMNode.className = 'fab-error';
+      errorDOMNode.innerHTML = message
+
+      return errorDOMNode;
+    } else {
+      console.error('Pas de message renseigné.')
+    }
+  };
+
+  /** Utils function end */
 
   /**
    * @function initialize This function init 
@@ -91,7 +134,7 @@ var fabModal = null,
     $body.appendChild(this.$el);
 
     if (options.isIframe === false) {
-      this.setContent(options.bodyContent);
+      this.setContent(options.content);
     } else {
       this.setIframeContent();
       this.$iframe = this.$el.querySelector(options.selectors.iframe);
@@ -117,7 +160,7 @@ var fabModal = null,
     fabModal.style.maxWidth = this.options.width;
     fabModal.style.maxHeight = this.options.height;
 
-    if (this.options.timeoutProgressBar) {
+    if (this.options.timeoutProgressBar && this.options.isIframe === false) {
       var fabModalProgressBar = document.createElement('div');
       var div = document.createElement('div');
 
@@ -140,24 +183,17 @@ var fabModal = null,
     fabModalIcons.className = 'fab-icons';
     fabModalHeader.appendChild(fabModalIcons)
 
-    if (this.options.minimizable) {
-      var fabReduceWindow = document.createElement('button');
-      fabReduceWindow.className = 'reduce';
-      fabReduceWindow.title = 'réduire';
-      fabModalIcons.appendChild(fabReduceWindow)
-    }
-
     if (this.options.maximizable) {
-      var fabMaximizeWindow = document.createElement('button');
-      fabMaximizeWindow.className = 'maximize';
-      fabMaximizeWindow.title = 'Agrandir';
-      fabModalIcons.appendChild(fabMaximizeWindow)
+      var fullScreenModalBtn = document.createElement('button');
+      fullScreenModalBtn.className = 'maximize';
+      fullScreenModalBtn.title = 'Agrandir';
+      fabModalIcons.appendChild(fullScreenModalBtn)
     }
 
-    var fabCloseWindow = document.createElement('button');
-    fabCloseWindow.className = 'close';
-    fabCloseWindow.title = 'Fermer';
-    fabModalIcons.appendChild(fabCloseWindow);
+    var closeModalBtn = document.createElement('button');
+    closeModalBtn.className = 'close';
+    closeModalBtn.title = 'Fermer';
+    fabModalIcons.appendChild(closeModalBtn);
 
     var fabModalBody = document.createElement('div');
     fabModalBody.className = 'fab-content fade-in';
@@ -235,8 +271,13 @@ var fabModal = null,
 
   fabModal.prototype.show = function () {
     this.$el.style.display = 'block';
+    this.$el.style.opacity = 1;
     if (this.$overlay) {
       this.$overlay.style.display = 'block';
+    }
+
+    if (this.options.onOpen && typeof this.options.onOpen === 'function') {
+      this.options.onOpen(this);
     }
   };
 
@@ -252,14 +293,19 @@ var fabModal = null,
       this.isFullScreen = false;
       this.$el.classList.remove('fullScreen');
       this.$maximize.title = 'Agrandir';
+
+      this.$el.dispatchEvent(new CustomEvent("restore"));
+      if (typeof this.options.onRestore === 'function') {
+        this.options.onRestore(this);
+      }
     } else {
       this.isFullScreen = true
-      this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       this.$el.classList.add('fullScreen');
       this.$maximize.title = 'Réstaurer';
 
+      this.$el.dispatchEvent(new CustomEvent("fullScreen"));
       if (typeof this.options.onFullScreen === 'function') {
-        this.options.onFullScreen();
+        this.options.onFullScreen(this);
       }
     }
   };
@@ -303,7 +349,19 @@ var fabModal = null,
     iframeDOMNode.className = 'fab-iframe';
     iframeDOMNode.width = '100%';
     iframeDOMNode.height = this.options.iframeHeight;
-    iframeDOMNode.src = this.options.iframeURL;
+    if (this.options.iframeURL !== '' && typeof this.options.iframeURL !== 'undefined' && this.options.iframeURL !== null) {
+      if (validURL(this.options.iframeURL)) {
+        iframeDOMNode.src = this.options.iframeURL;
+      } else {
+        var error = generateError('URL de l\'iframe invalide');
+        this.$windowBody.appendChild(error);
+        return;
+      }
+    } else {
+      var error = generateError('URL de l\'iframe non renseigné.');
+      this.$windowBody.appendChild(error);
+      return;
+    }
 
     this.$windowBody.appendChild(iframeDOMNode);
   };
@@ -322,6 +380,10 @@ var fabModal = null,
     var that = this;
     clearTimeout(this.timerTimeout);
 
+    if (typeof this.options.onClosing === "function") {
+      this.options.onClosing(this);
+    }
+
     this.$el.classList.add(this.options.effects.out)
     if (this.$overlay) {
       this.$overlay.classList.add('fade-out');
@@ -332,6 +394,9 @@ var fabModal = null,
       that.$el.remove();
       if (that.$overlay) {
         that.$overlay.remove();
+      }
+      if (typeof that.options.onClosed === "function") {
+        that.options.onClosed(this);
       }
     }, 800);
   };
@@ -359,8 +424,12 @@ var fabModal = null,
       outerHeight = fabContentHeight + this.$header.clientHeight,
       borderBottom = this.options.isIframe ? 0 : 3;
 
-    if (this.options.onResize && typeof this.options.onResize === 'function') {
-      this.options.onResize(this);
+    if (modalHeight !== this.modalHeight) {
+      this.modalHeight = modalHeight;
+
+      if (typeof this.options.onResize === 'function') {
+        this.options.onResize(this);
+      }
     }
 
     if ($window.innerWidth <= 600) {
@@ -386,16 +455,24 @@ var fabModal = null,
       }
     }
 
+    if (modalHeight !== this.modalHeight) {
+      this.modalHeight = modalHeight;
+
+      if (this.options.onResize && typeof this.options.onResize === 'function') {
+        this.options.onResize(this);
+      }
+    }
+
     if (this.options.isIframe === true) {
       // If the height of the window is smaller than the modal with iframe
       if (windowHeight < ((this.options.iframeHeight) + this.$header.clientHeight + borderBottom) || this.isFullScreen === true) {
         this.$windowBody.style.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
-        if (this.options.isIframe) {
+        if (this.options.isIframe && this.$iframe) {
           this.$iframe.height = windowHeight - (this.$header.clientHeight + borderBottom) + 'px';
         }
       } else {
         this.$windowBody.style.height = this.options.iframeHeight;
-        if (this.options.isIframe) {
+        if (this.options.isIframe && this.$iframe) {
           this.$iframe.height = this.options.iframeHeight;
         }
       }
@@ -519,10 +596,6 @@ var fabModal = null,
           // Success!
           var data = JSON.parse(this.response);
           console.log(data);
-          console.log("FullName: " + data.full_name);
-          console.log("URL: " + data.html_url);
-          console.log("Forks: " + data.forks);
-          console.log("Stars: " + data.stargazers_count);
           var content = '<ul>';
           content += '<li style="margin: 10px 0 10px 0;">'
           content += '<span style="font-weight:bold;">FullName</span>: ' + data.full_name;

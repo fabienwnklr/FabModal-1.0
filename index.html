@@ -20,14 +20,28 @@
                 <button id="ajax">Load Ajax </button>
                 `;
         document.addEventListener('DOMContentLoaded', function () {
-            window.fabModal = new fabModal({
+            window.myModal = new fabModal({
                 title: 'FabModal',
                 // isIframe: true,
                 // iframeURL: 'https://www.youtube.com/embed/HSsqzzuGTPo',
-                bodyContent: content,
-                overlayClose: false,
+                content: content,
                 timeoutProgressBar: true,
                 pauseOnHover: true,
+                onClosing: function(modal) {
+                    console.info('She\'s closinnnng....')
+                },
+                onClosed: function() {
+                    console.info('She\'s closeeeedd...')
+                },
+                onFullScreen: function () {
+                    console.info('Fullscreen modal')
+                },
+                onResize: function () {
+                    console.info('Resized..')
+                },
+                onOpen: function (modal) {
+                    console.info(modal.getTitle() + ' is now opened')
+                }
                 // timeout: 9000,
             });
         });
@@ -37,22 +51,22 @@
             if (!e || !e.target || !e.target.id) return;
             switch (e.target.id) {
                 case 'pause':
-                    fabWindow.pauseProgress();
+                    myModal.pauseProgress();
                     break;
                 case 'resume':
-                    fabWindow.resumeProgress();
+                    myModal.resumeProgress();
                     break;
                 case 'reset':
-                    fabWindow.resetProgress();
+                    myModal.resetProgress();
                     break;
                 case 'ajax':
-                    fabWindow.getExternalContent();
+                    myModal.getExternalContent();
                     break;
                 case 'start':
-                    fabWindow.startProgress(8000);
+                    myModal.startProgress(8000);
                     break;
                 case 'back':
-                    fabWindow.resetContent();
+                    myModal.resetContent();
                     break;
                 default:
                     console.info('Aucun comportement renseigné pour cette cible...')
