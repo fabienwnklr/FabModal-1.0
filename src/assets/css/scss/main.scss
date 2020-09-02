@@ -59,12 +59,12 @@
 }
 
 @media (max-width: 600px) {
-  .fab-window {
+  .fab-modal {
     max-height: 100% !important;
   }
 }
 
-.fab-window {
+.fab-modal {
   opacity: 0;
   z-index: 9999;
   position: fixed;
@@ -87,7 +87,7 @@
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   transition: all .2s ease;
 
-  .fab-window-progress-bar {
+  .fab-modal-progress-bar {
     position: absolute;
     left: 0;
     top: 0px;

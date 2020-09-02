@@ -30,10 +30,10 @@ var FabModal = null,
     // Options
     options = options || {};
     var defaults = {
-      id: 'fab-window-' + Math.round(new Date().getTime() + (Math.random() * 100)),
+      id: 'fab-modal-' + Math.round(new Date().getTime() + (Math.random() * 100)),
       selectors: {
         overlay: '.fab-overlay',
-        modal: '.fab-window',
+        modal: '.fab-modal',
         header: '.fab-header',
         title: '.fab-title',
         icons: '.fab-icons',
@@ -78,7 +78,7 @@ var FabModal = null,
     };
 
     this.isPaused = false;
-    this.isFullScreen = false;
+    this.isFullScreen = options.isFullScreen ? true : false;
     this.isMinimized = false;
     this.timerTimeout = null;
     this.oldContent = null;
@@ -128,7 +128,7 @@ var FabModal = null,
    * @param {Object} modal FabModal object
    */
   function recalcLayout(modal) {
-    var fabContentHeight = modal.$windowBody.scrollHeight,
+    var fabContentHeight = modal.$modalBody.scrollHeight,
       modalHeight = modal.$el.clientHeight,
       windowHeight = $window.innerHeight,
       wrapperHeight = modal.$el.clientHeight - modal.$header.clientHeight,
@@ -148,14 +148,14 @@ var FabModal = null,
     }
 
     if (outerHeight > windowHeight) {
-      if (document.querySelectorAll('.fab-window').length === 1) {
+      if (document.querySelectorAll('.fab-modal').length === 1) {
         document.querySelector('html').style.overflow = 'hidden';
       }
       modal.$el.style.height = windowHeight + 'px';
 
     } else {
       modal.$el.style.height = fabContentHeight + (modal.$header.clientHeight + borderBottom) + 'px';
-      if (document.querySelectorAll('.fab-window').length === 1) {
+      if (document.querySelectorAll('.fab-modal').length === 1) {
         document.querySelector('html').style.overflow = '';
       }
     }
@@ -171,12 +171,12 @@ var FabModal = null,
     if (modal.options.isIframe === true) {
       // If the height of the window is smaller than the modal with iframe
       if (windowHeight < ((modal.options.iframeHeight) + modal.$header.clientHeight + borderBottom) || modal.isFullScreen === true) {
-        modal.$windowBody.style.height = windowHeight - (modal.$header.clientHeight + borderBottom) + 'px';
+        modal.$modalBody.style.height = windowHeight - (modal.$header.clientHeight + borderBottom) + 'px';
         if (modal.options.isIframe && modal.$iframe) {
           modal.$iframe.height = windowHeight - (modal.$header.clientHeight + borderBottom) + 'px';
         }
       } else {
-        modal.$windowBody.style.height = modal.options.iframeHeight;
+        modal.$modalBody.style.height = modal.options.iframeHeight;
         if (modal.options.isIframe && modal.$iframe) {
           modal.$iframe.height = modal.options.iframeHeight;
         }
@@ -184,11 +184,11 @@ var FabModal = null,
     }
     (function applyScroll() {
       if (fabContentHeight > wrapperHeight && outerHeight > windowHeight) {
-        modal.$windowBody.classList.add('hasScroll');
-        modal.$windowBody.style.height = modalHeight - (modal.$header.clientHeight + borderBottom) + 'px';
+        modal.$modalBody.classList.add('hasScroll');
+        modal.$modalBody.style.height = modalHeight - (modal.$header.clientHeight + borderBottom) + 'px';
       } else if (modal.options.isIframe === false) {
-        modal.$windowBody.classList.remove('hasScroll');
-        modal.$windowBody.style.height = 'auto';
+        modal.$modalBody.classList.remove('hasScroll');
+        modal.$modalBody.style.height = 'auto';
       }
     })();
   };
@@ -202,7 +202,7 @@ var FabModal = null,
    */
   FabModal.prototype.initialize = function initialize(options) {
     var that = this;
-    this.$el = this.createWindow();
+    this.$el = this.createModal();
 
     if (options.overlayClose === true) {
       this.$overlay = $body.querySelector(options.selectors.overlay);
@@ -213,7 +213,7 @@ var FabModal = null,
     this.$reduce = this.$el.querySelector(options.selectors.reduce);
     this.$maximize = this.$el.querySelector(options.selectors.maximize)
     this.$close = this.$el.querySelector(options.selectors.close);
-    this.$windowBody = this.$el.querySelector(options.selectors.body);
+    this.$modalBody = this.$el.querySelector(options.selectors.body);
 
     $body.appendChild(this.$el);
 
@@ -236,10 +236,11 @@ var FabModal = null,
   /**
    * Create modal
    */
-  FabModal.prototype.createWindow = function createWindow() {
+  FabModal.prototype.createModal = function createModal() {
     var FabModal = document.createElement('div');
     var iframe = this.options.isIframe ? ' iframe' : '';
-    FabModal.className = 'fab-window ' + this.options.effects.in + iframe;
+    var fullScreen = this.isFullScreen ? ' fullScreen' : '';
+    FabModal.className = 'fab-modal ' + this.options.effects.in + iframe + fullScreen;
     FabModal.id = this.options.id;
     FabModal.style.maxWidth = this.options.width;
     FabModal.style.maxHeight = this.options.height;
@@ -248,7 +249,7 @@ var FabModal = null,
       var FabModalProgressBar = document.createElement('div');
       var div = document.createElement('div');
 
-      FabModalProgressBar.className = 'fab-window-progress-bar';
+      FabModalProgressBar.className = 'fab-modal-progress-bar';
       FabModalProgressBar.appendChild(div);
 
       FabModal.appendChild(FabModalProgressBar);
@@ -419,13 +420,13 @@ var FabModal = null,
   FabModal.prototype.setContent = function setContent(content) {
     if (content !== '' && content !== 'undefined' && content !== null) {
       var isLoader = true;
-      if (this.$windowBody.innerHTML !== this.options.loader) {
+      if (this.$modalBody.innerHTML !== this.options.loader) {
         isLoader = false;
       }
       if (!isLoader) {
-        this.oldContent = this.$windowBody.innerHTML;
+        this.oldContent = this.$modalBody.innerHTML;
       }
-      this.$windowBody.innerHTML = content;
+      this.$modalBody.innerHTML = content;
       if (this.options.height === 'auto') {
         this.options.height = this.$el.clientHeight;
       }
@@ -449,7 +450,7 @@ var FabModal = null,
   };
 
   /**
-   * Function create iframe node with URL and insert in windowBody
+   * Function create iframe node with URL and insert in modalBody
    */
   FabModal.prototype.generateIframe = function generateIframe() {
     var iframeDOMNode = document.createElement('iframe');
@@ -462,16 +463,16 @@ var FabModal = null,
         iframeDOMNode.src = this.options.iframeURL;
       } else {
         var error = generateError('URL de l\'iframe invalide');
-        this.$windowBody.appendChild(error);
+        this.$modalBody.appendChild(error);
         return;
       }
     } else {
       var error = generateError('URL de l\'iframe non renseigné.');
-      this.$windowBody.appendChild(error);
+      this.$modalBody.appendChild(error);
       return;
     }
 
-    this.$windowBody.appendChild(iframeDOMNode);
+    this.$modalBody.appendChild(iframeDOMNode);
   };
 
   /**
@@ -499,7 +500,7 @@ var FabModal = null,
     if (this.$overlay) {
       this.$overlay.classList.add('fade-out');
     }
-    // On remove la window une fois l'effet fade-out terminé
+    
     window.setTimeout(function close() {
       that.$el.dispatchEvent(new CustomEvent("FabModalClose"));
       that.$el.remove();
@@ -513,7 +514,7 @@ var FabModal = null,
   };
 
   /**
-   * Function startLoader For init loader and clear all content in window
+   * Function startLoader For init loader and clear all content in modal
    */
   FabModal.prototype.startLoader = function startLoader() {
     this.setContent(this.options.loader)
@@ -550,7 +551,7 @@ var FabModal = null,
         hideEta: null,
         maxHideTime: null,
         currentTime: new Date().getTime(),
-        el: this.$el.querySelector('.fab-window-progress-bar > div'),
+        el: this.$el.querySelector('.fab-modal-progress-bar > div'),
         updateProgress: function updateProgress() {
           if (!that.isPaused) {
 
@@ -586,7 +587,7 @@ var FabModal = null,
   FabModal.prototype.resetProgress = function resetProgress() {
     clearTimeout(this.timerTimeout);
     this.progressBar = {};
-    this.$el.querySelector('.fab-window-progress-bar > div').style.width = '100%';
+    this.$el.querySelector('.fab-modal-progress-bar > div').style.width = '100%';
   };
 
   /** Resume progress bar */
