@@ -183,7 +183,7 @@ var FabModal = null,
       }
     }
     (function applyScroll() {
-      if (fabContentHeight > wrapperHeight && outerHeight > windowHeight) {
+      if (fabContentHeight > wrapperHeight) {
         modal.$modalBody.classList.add('hasScroll');
         modal.$modalBody.style.height = modalHeight - (modal.$header.clientHeight + borderBottom) + 'px';
       } else if (modal.options.isIframe === false) {
@@ -394,6 +394,7 @@ var FabModal = null,
   FabModal.prototype.toggleFullScreen = function toggleFullScreen() {
     if (this.isFullScreen) {
       this.isFullScreen = false;
+      $body.style.overflow = 'auto';
       this.$el.classList.remove('fullScreen');
       this.$maximize.title = 'Agrandir';
 
@@ -403,6 +404,7 @@ var FabModal = null,
       }
     } else {
       this.isFullScreen = true
+      $body.style.overflow = 'hidden';
       this.$el.classList.add('fullScreen');
       this.$maximize.title = 'Réstaurer';
 
@@ -491,6 +493,8 @@ var FabModal = null,
     var that = this;
     clearTimeout(this.timerTimeout);
     clearTimeout(this.timerRecalcLayout);
+
+    $body.style.overflow = 'auto';
 
     if (typeof this.options.onClosing === "function") {
       this.options.onClosing(this);
