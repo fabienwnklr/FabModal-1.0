@@ -177,6 +177,7 @@
     }
 
     .fab-title {
+      margin: 0;
       font-size: 1.3rem;
       color: rgba(255, 255, 255, .8);
       -webkit-animation: slideIn 0.7s cubic-bezier(0.7, 0, 0.3, 1);
@@ -263,6 +264,7 @@
     max-width: 100%;
     height: auto;
     line-height: 1.8;
+    color: #0a0a0a;
 
     &.hasScroll {
       overflow-x: hidden;

@@ -370,6 +370,7 @@
     .fab-window .fab-header.draggable {
       cursor: move; }
     .fab-window .fab-header .fab-title {
+      margin: 0;
       font-size: 1.3rem;
       color: rgba(255, 255, 255, 0.8);
       -webkit-animation: slideIn 0.7s cubic-bezier(0.7, 0, 0.3, 1);
