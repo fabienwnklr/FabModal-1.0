@@ -43,6 +43,7 @@ var FabModal = null,
         body: '.fab-content',
         iframe: '.fab-iframe',
         loader: '.loader',
+        progress: '.fab-modal-progress-bar'
       },
       effects: {
         in: 'coming-in', // Also fade-in
@@ -67,14 +68,14 @@ var FabModal = null,
       iframeHeight: '400px',
 
       // function
-      onFullscreen: function onFullscreen() { },
-      onRestore: function onRestore() { },
-      onResize: function onResize() { },
-      onOpen: function onOpen() { },
+      onFullscreen: function onFullscreen() {},
+      onRestore: function onRestore() {},
+      onResize: function onResize() {},
+      onOpen: function onOpen() {},
       // During closing
-      onClosing: function onClosing() { },
+      onClosing: function onClosing() {},
       // When modal are closed
-      onClosed: function onClosed() { },
+      onClosed: function onClosed() {},
     };
 
     this.isPaused = false;
@@ -207,6 +208,9 @@ var FabModal = null,
     if (options.overlayClose === true) {
       this.$overlay = $body.querySelector(options.selectors.overlay);
     }
+    if (options.timeoutProgressBar) {
+      this.$progressBar = this.$el.querySelector(options.selectors.progress);
+    }
     this.$header = this.$el.querySelector(options.selectors.header);
     this.$title = this.$el.querySelector(options.selectors.title);
     this.$icons = this.$el.querySelector(options.selectors.icons);
@@ -275,10 +279,10 @@ var FabModal = null,
       FabModalIcons.appendChild(fullScreenModalBtn)
     }
 
-    var closeModalBtn = document.createElement('button');
-    closeModalBtn.className = 'close';
-    closeModalBtn.title = 'Fermer';
-    FabModalIcons.appendChild(closeModalBtn);
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'close';
+    closeBtn.title = 'Fermer';
+    FabModalIcons.appendChild(closeBtn);
 
     var FabModalBody = document.createElement('div');
     FabModalBody.className = 'fab-content fade-in';
@@ -324,11 +328,11 @@ var FabModal = null,
       e.stopPropagation();
       e.preventDefault();
 
-      that.closeModal();
+      that.close();
     })
     document.addEventListener('keyup', function (e) {
       if (e.keyCode === 27) {
-        that.closeModal();
+        that.close();
       }
     })
 
@@ -339,7 +343,7 @@ var FabModal = null,
         e.stopPropagation();
         e.preventDefault();
 
-        that.closeModal();
+        that.close();
       })
     }
 
@@ -487,9 +491,9 @@ var FabModal = null,
   };
 
   /**
-   * Function closeModal [close, and removing from DOM] 
+   * Function close [close, and removing from DOM] 
    */
-  FabModal.prototype.closeModal = function closeModal() {
+  FabModal.prototype.close = function close() {
     var that = this;
     clearTimeout(this.timerTimeout);
     clearTimeout(this.timerRecalcLayout);
@@ -504,7 +508,7 @@ var FabModal = null,
     if (this.$overlay) {
       this.$overlay.classList.add('fade-out');
     }
-    
+
     window.setTimeout(function close() {
       that.$el.dispatchEvent(new CustomEvent("FabModalClose"));
       that.$el.remove();
@@ -537,6 +541,19 @@ var FabModal = null,
    * @param {Integer} timer In millisecond
    */
   FabModal.prototype.startProgress = function startProgress(timer) {
+    if (!this.$progressBar) {
+      var FabModalProgressBar = document.createElement('div');
+      var div = document.createElement('div');
+
+      FabModalProgressBar.className = 'fab-modal-progress-bar';
+      FabModalProgressBar.appendChild(div);
+
+      this.$el.appendChild(FabModalProgressBar);
+      this.$progressBar = FabModalProgressBar;
+
+      this.options.timeoutProgressBar = true;
+      this.options.timeout = true;
+    }
     if (typeof timer !== 'number' && this.options.timeout === false) {
       console.warn('please ');
       return;
@@ -564,7 +581,7 @@ var FabModal = null,
             var percentage = ((that.progressBar.hideEta - (that.progressBar.currentTime)) / that.progressBar.maxHideTime) * 100;
             that.progressBar.el.style.width = percentage + '%';
             if (percentage < 0) {
-              that.closeModal();
+              that.close();
             }
           }
         }
@@ -575,7 +592,7 @@ var FabModal = null,
         this.timerTimeout = setInterval(this.progressBar.updateProgress, 10);
       } else {
         this.timerTimeout = setTimeout(function closeOnEndProgress() {
-          that.closeModal();
+          that.close();
         }, that.options.timeout);
       }
 
@@ -601,7 +618,7 @@ var FabModal = null,
 
   /** For get extern content (fetch by default, XMLHttpRequest if fetch not defined)
    * @param {string} url url to get
-  */
+   */
   FabModal.prototype.getExternalContent = function getExternalContent(url) {
     var that = this;
     if (!url || typeof ulr === 'undefined' || url === null) {
