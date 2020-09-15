@@ -650,11 +650,14 @@ var FabModal = null,
             for (var property in data) {
               content += '<li style="margin: 20px 0 20px 0;">'
               content += '<span style="font-weight:bold;">' + property + '</span>: ' + data[property];
-              content += '<li>'
+              content += '</li>'
             }
             content += '</ul>';
-            that.setContent(content);
-            that.stopLoader();
+            var timeout = setTimeout(function () {
+              that.setContent(content);
+              that.stopLoader();
+              clearTimeout(timeout);
+            }, 3000)
           })
         })
         .catch(function (error) {
