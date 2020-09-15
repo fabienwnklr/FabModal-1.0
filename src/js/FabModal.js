@@ -85,6 +85,8 @@ var FabModal = null,
     this.oldContent = null;
     this.modalHeight = 0;
 
+    this.cssInserted = false;
+
     this.options = Object.assign(defaults, options);
 
     this.initialize(this.options);
@@ -203,6 +205,18 @@ var FabModal = null,
    */
   FabModal.prototype.initialize = function initialize(options) {
     var that = this;
+
+    if (!this.cssInserted) {
+      var scripts = document.getElementsByTagName("script");
+      var src = scripts[0].src;
+      src = src.split('/').slice(0, 5).join('/');
+      var cssFabModal = document.createElement('link');
+      cssFabModal.href = src + '/assets/css/main.css';
+      cssFabModal.rel = 'stylesheet';
+      document.querySelector('head').appendChild(cssFabModal);
+      this.cssInserted = true;
+    }
+
     this.$el = this.createModal();
 
     if (options.overlayClose === true) {
