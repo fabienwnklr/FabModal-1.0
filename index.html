@@ -40,7 +40,7 @@
                     console.log("Modal restaured", modal);
                 },
                 onResize: function (modal) {
-                    console.info('Resized..', modal)
+                    console.info('Resized..', modal.constructor.name)
                 },
                 onOpen: function (modal) {
                     console.info(modal.getTitle() + ' is now opened', modal)

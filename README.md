@@ -19,7 +19,7 @@ yarn add fabmodal
 
 # or CDN
 
-https://cdn.jsdelevry.net/
+https://cdn.jsdelivr.net/
 ```
 
 ###### Import script

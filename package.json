@@ -1,6 +1,6 @@
 {
-  "name": "fab-window",
-  "version": "1.0.0",
+  "name": "fabmodal",
+  "version": "1.1.0",
   "description": "FabWindow it's a light plugin easy to use, for create simply and modern modal dialog, or multiple dialog with an window manager",
   "main": "src/FabWindow.js",
   "scripts": {

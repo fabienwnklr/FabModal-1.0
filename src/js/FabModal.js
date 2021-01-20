@@ -138,14 +138,6 @@ var FabModal = null,
       outerHeight = fabContentHeight + modal.$header.clientHeight,
       borderBottom = modal.options.isIframe ? 0 : 3;
 
-    if (modalHeight !== modal.modalHeight) {
-      modal.modalHeight = modalHeight;
-
-      if (typeof modal.options.onResize === 'function') {
-        modal.options.onResize(modal);
-      }
-    }
-
     if (!modal.isFullScreen) {
       modal.$el.style.height = parseInt(fabContentHeight) + (modal.$header.clientHeight - borderBottom) + 'px';
     }
@@ -529,7 +521,7 @@ var FabModal = null,
         that.$overlay.remove();
       }
       if (typeof that.options.onClosed === "function") {
-        that.options.onClosed(this);
+        that.options.onClosed(that);
       }
     }, 800);
   };
