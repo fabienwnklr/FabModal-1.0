@@ -208,10 +208,9 @@ var FabModal = null,
 
     if (!this.cssInserted) {
       var scripts = document.getElementsByTagName("script");
-      var src = scripts[0].src;
-      src = src.split('/').slice(0, 5).join('/');
+      var src = location.protocol + '//' + location.host + '/src/assets/css/main.css'
       var cssFabModal = document.createElement('link');
-      cssFabModal.href = src + '/assets/css/main.css';
+      cssFabModal.href = src;
       cssFabModal.rel = 'stylesheet';
       document.querySelector('head').appendChild(cssFabModal);
       this.cssInserted = true;

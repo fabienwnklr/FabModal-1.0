@@ -28,22 +28,22 @@
                 timeoutProgressBar: true,
                 pauseOnHover: true,
                 onClosing: function(modal) {
-                    console.info('She\'s closinnnng....')
+                    console.info('She\'s closinnnng....', modal)
                 },
-                onClosed: function() {
-                    console.info('She\'s closeeeedd...')
+                onClosed: function(modal) {
+                    console.info('She\'s closeeeedd...', modal)
                 },
-                onFullScreen: function () {
-                    console.info('Fullscreen modal')
+                onFullScreen: function (modal) {
+                    console.info('Fullscreen modal', modal)
                 },
-                onRestore: function () {
-                    console.log("Modal restaured");
+                onRestore: function (modal) {
+                    console.log("Modal restaured", modal);
                 },
-                onResize: function () {
-                    console.info('Resized..')
+                onResize: function (modal) {
+                    console.info('Resized..', modal)
                 },
                 onOpen: function (modal) {
-                    console.info(modal.getTitle() + ' is now opened')
+                    console.info(modal.getTitle() + ' is now opened', modal)
                 }
                 // timeout: 9000,
             });
