@@ -4,7 +4,8 @@
   "description": "FabWindow it's a light plugin easy to use, for create simply and modern modal dialog, or multiple dialog with an window manager",
   "main": "src/FabWindow.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "buildcss": "npx sass src/assets/css/scss/main.scss:src/assets/css/main.css",
+    "watchcss": "npx sass --watch src/assets/css/scss/main.scss:src/assets/css/main.css"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/fabienwnklr/FabWindow/issues"
   },
-  "homepage": "https://github.com/fabienwnklr/FabWindow#readme"
+  "homepage": "https://github.com/fabienwnklr/FabWindow#readme",
+  "devDependencies": {
+    "sass": "^1.32.5"
+  }
 }
