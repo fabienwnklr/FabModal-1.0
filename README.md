@@ -20,7 +20,17 @@ yarn add fabmodal
 
 # or CDN
 
-https://cdn.jsdelivr.net/
+// JavaScript
+https://cdn.jsdelivr.net/npm/fab-window@1.1.0/src/js/FabModal.min.js
+
+// CSS
+https://cdn.jsdelivr.net/npm/fab-window@1.1.0/src/assets/css/main.min.css
+
+// ICONS
+https://cdn.jsdelivr.net/npm/fab-window@1.1.0/src/assets/icon/close.svg
+https://cdn.jsdelivr.net/npm/fab-window@1.1.0/src/assets/icon/expand.svg
+https://cdn.jsdelivr.net/npm/fab-window@1.1.0/src/assets/icon/minus.svg
+
 ```
 
 ###### Import script
