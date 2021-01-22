@@ -376,6 +376,7 @@ var FabModal = null,
    * Function showing the modal 
    */
   FabModal.prototype.show = function show() {
+    $body.style.overflow = 'hidden';
     this.$el.style.display = 'block';
     this.$el.style.opacity = 1;
     if (this.$overlay) {

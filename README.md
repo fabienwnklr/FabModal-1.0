@@ -1,3 +1,4 @@
+[![](https://data.jsdelivr.com/v1/package/npm/fab-window/badge)](https://www.jsdelivr.com/package/npm/fab-window)
 # FabModal
 
 FabModal it's a light, simply, modern and nice modal plugin in full JS native ! :wink:
