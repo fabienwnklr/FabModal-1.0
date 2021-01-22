@@ -197,17 +197,6 @@ var FabModal = null,
    */
   FabModal.prototype.initialize = function initialize(options) {
     var that = this;
-
-    if (!this.cssInserted) {
-      var scripts = document.getElementsByTagName("script");
-      var src = location.protocol + '//' + location.host + '/src/assets/css/main.css'
-      var cssFabModal = document.createElement('link');
-      cssFabModal.href = src;
-      cssFabModal.rel = 'stylesheet';
-      document.querySelector('head').appendChild(cssFabModal);
-      this.cssInserted = true;
-    }
-
     this.$el = this.createModal();
 
     if (options.overlayClose === true) {
